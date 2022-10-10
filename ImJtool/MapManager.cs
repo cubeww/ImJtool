@@ -14,6 +14,7 @@ namespace ImJtool
     /// </summary>
     public class MapManager
     {
+        public static MapManager Instance => Jtool.Instance.MapManager;
         public string MapName { get; set; } = "Untitled.jmap";
         bool modified = false;
 
@@ -140,7 +141,7 @@ namespace ImJtool
                     switch (key)
                     {
                         case "inf":
-                            Jtool.Instance.PlayerManager.Infjump = int.Parse(value) switch
+                            PlayerManager.Instance.Infjump = int.Parse(value) switch
                             {
                                 0 => false,
                                 1 => true,
@@ -148,7 +149,7 @@ namespace ImJtool
                             };
                             break;
                         case "dot":
-                            Jtool.Instance.PlayerManager.Dotkid = int.Parse(value) switch
+                            PlayerManager.Instance.Dotkid = int.Parse(value) switch
                             {
                                 0 => false,
                                 1 => true,
@@ -156,26 +157,26 @@ namespace ImJtool
                             };
                             break;
                         case "sav":
-                            Jtool.Instance.PlayerManager.SaveType = (SaveType)int.Parse(value);
+                            PlayerManager.Instance.SaveType = (SaveType)int.Parse(value);
                             break;
                         case "bor":
-                            Jtool.Instance.PlayerManager.DeathBorder = (DeathBorder)int.Parse(value);
+                            PlayerManager.Instance.DeathBorder = (DeathBorder)int.Parse(value);
                             break;
                         case "px":
-                            Jtool.Instance.PlayerManager.CurrentSave.X = (float)Base32ToDouble(value);
+                            PlayerManager.Instance.CurrentSave.X = (float)Base32ToDouble(value);
                             break;
                         case "py":
-                            Jtool.Instance.PlayerManager.CurrentSave.Y = (float)Base32ToDouble(value);
+                            PlayerManager.Instance.CurrentSave.Y = (float)Base32ToDouble(value);
                             break;
                         case "ps":
-                            Jtool.Instance.PlayerManager.Face = int.Parse(value);
+                            PlayerManager.Instance.Face = int.Parse(value);
                             break;
                         case "pg":
-                            Jtool.Instance.PlayerManager.Grav = int.Parse(value);
+                            PlayerManager.Instance.Grav = int.Parse(value);
                             break;
                         case "objects":
-                            Jtool.Instance.Editor.ClearUndo();
-                            foreach (var o in Jtool.Instance.MapObjectManager.Objects)
+                            Editor.Instance.ClearUndo();
+                            foreach (var o in MapObjectManager.Instance.Objects)
                             {
                                 if (o.IsInPalette)
                                     o.Destroy();
@@ -192,7 +193,7 @@ namespace ImJtool
                                 {
                                     var type = JMapToType[(int)Base32ToDouble(value.Substring(i, 1))];
                                     var xx = (float)Base32ToDouble(value.Substring(i + 1, 2));
-                                    Jtool.Instance.MapObjectManager.CreateObject(xx - 128, yy - 128, type);
+                                    MapObjectManager.Instance.CreateObject(xx - 128, yy - 128, type);
                                     objnum++;
                                 }
                                 i += 3;
@@ -201,7 +202,7 @@ namespace ImJtool
                     }
                 }
             }
-            Jtool.Instance.PlayerManager.Load();
+            PlayerManager.Instance.Load();
             Modified = false;
             CurrentMapFile = filename;
             Gui.Log("Map Manager", $"JMap loaded. File: {filename}, {objnum} objects");
@@ -239,7 +240,7 @@ namespace ImJtool
             };
 
             var mapObjectsList = new List<(int, int, int)>();
-            foreach (var i in Jtool.Instance.MapObjectManager.Objects)
+            foreach (var i in MapObjectManager.Instance.Objects)
             {
                 if (i.IsInPalette)
                 {
@@ -263,22 +264,22 @@ namespace ImJtool
                 obj += PadStringLeft(IntToBase32(i.Item1 + 128), 2, "0");
             }
             string str = string.Format("jtool|1.3.0|inf:{0}|dot:{1}|sav:{2}|bor:{3}|px:{4}|py:{5}|ps:{6}|pg:{7}|objects:{8}",
-                Jtool.Instance.PlayerManager.Infjump switch
+                PlayerManager.Instance.Infjump switch
                 {
                     true => 1,
                     false => 0,
                 },
-                Jtool.Instance.PlayerManager.Dotkid switch
+                PlayerManager.Instance.Dotkid switch
                 {
                     true => 1,
                     false => 0,
                 },
-                (int)Jtool.Instance.PlayerManager.SaveType,
-                (int)Jtool.Instance.PlayerManager.DeathBorder,
-                PadStringLeft(DoubleToBase32(Jtool.Instance.PlayerManager.CurrentSave.X), 13, "0"),
-                PadStringLeft(DoubleToBase32(Jtool.Instance.PlayerManager.CurrentSave.Y), 13, "0"),
-                (int)Jtool.Instance.PlayerManager.Face,
-                (int)Jtool.Instance.PlayerManager.Grav,
+                (int)PlayerManager.Instance.SaveType,
+                (int)PlayerManager.Instance.DeathBorder,
+                PadStringLeft(DoubleToBase32(PlayerManager.Instance.CurrentSave.X), 13, "0"),
+                PadStringLeft(DoubleToBase32(PlayerManager.Instance.CurrentSave.Y), 13, "0"),
+                (int)PlayerManager.Instance.Face,
+                (int)PlayerManager.Instance.Grav,
                 obj);
             File.WriteAllText(filename, str);
             Modified = false;

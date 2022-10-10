@@ -29,6 +29,7 @@
     };
     public class PlayerManager
     {
+        public static PlayerManager Instance => Jtool.Instance.PlayerManager;
         public PlayerSave CurrentSave { get; set; } = new();
         public Player Player { get; set; }
 
@@ -49,16 +50,16 @@
             set
             {
                 deathBorder = value;
-                Jtool.Instance.MapObjectManager.DestroyByType(typeof(BorderBlock));
+                MapObjectManager.Instance.DestroyByType(typeof(BorderBlock));
                 if (value == DeathBorder.Solid)
                 {
-                    var obj = Jtool.Instance.MapObjectManager.CreateObject(-32, 0, typeof(BorderBlock));
+                    var obj = MapObjectManager.Instance.CreateObject(-32, 0, typeof(BorderBlock));
                     obj.YScale = 19;
-                    obj = Jtool.Instance.MapObjectManager.CreateObject(800, 0, typeof(BorderBlock));
+                    obj = MapObjectManager.Instance.CreateObject(800, 0, typeof(BorderBlock));
                     obj.YScale = 19;
-                    obj = Jtool.Instance.MapObjectManager.CreateObject(0, -32, typeof(BorderBlock));
+                    obj = MapObjectManager.Instance.CreateObject(0, -32, typeof(BorderBlock));
                     obj.XScale = 25;
-                    obj = Jtool.Instance.MapObjectManager.CreateObject(0, 608, typeof(BorderBlock));
+                    obj = MapObjectManager.Instance.CreateObject(0, 608, typeof(BorderBlock));
                     obj.XScale = 25;
                 }
             }
@@ -66,10 +67,10 @@
 
         public void Update()
         {
-            if (Jtool.Instance.InputManager.IsKeyPress(Microsoft.Xna.Framework.Input.Keys.R))
+            if (InputManager.Instance.IsKeyPress(Microsoft.Xna.Framework.Input.Keys.R))
             {
                 // Press R
-                Jtool.Instance.PlayerManager.Load();
+                PlayerManager.Instance.Load();
             }
         }
 
@@ -86,10 +87,10 @@
         }
         public void Load()
         {
-            Jtool.Instance.MapObjectManager.DestroyByType(typeof(Player));
-            Jtool.Instance.MapObjectManager.DestroyByType(typeof(Blood));
+            MapObjectManager.Instance.DestroyByType(typeof(Player));
+            MapObjectManager.Instance.DestroyByType(typeof(Blood));
 
-            Jtool.Instance.MapObjectManager.CreateObject(CurrentSave.X, CurrentSave.Y, typeof(Player));
+            MapObjectManager.Instance.CreateObject(CurrentSave.X, CurrentSave.Y, typeof(Player));
             Grav = CurrentSave.Grav;
             Face = CurrentSave.Face;
             Gui.Log("PlayerManager", $"Player loaded: {{ X: {CurrentSave.X}, Y: {CurrentSave.Y} }}");

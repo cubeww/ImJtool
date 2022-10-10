@@ -20,6 +20,8 @@ namespace ImJtool
     /// </summary>
     public class Gui
     {
+        public static Gui Instance => Jtool.Instance.Gui;
+
         // Show window fields
         bool showMapWindow = true;
         bool showSnapWindow = false;
@@ -63,7 +65,7 @@ namespace ImJtool
         {
             foreach (var type in MapObject.PaletteObjects)
             {
-                var item = Jtool.Instance.SkinManager.GetCurrentSpriteOfType(type).GetItem(0);
+                var item = SkinManager.Instance.GetCurrentSpriteOfType(type).GetItem(0);
                 var tex = item.Texture;
                 var gd = Jtool.Instance.GraphicsDevice;
                 var sb = Jtool.Instance.SpriteBatch;
@@ -83,16 +85,16 @@ namespace ImJtool
         public void Update()
         {
             // Shortcut keys
-            if (Jtool.Instance.InputManager.IsKeyHold(Keys.LeftControl) && Jtool.Instance.InputManager.IsKeyPress(Keys.Z))
-                Jtool.Instance.Editor.Undo();
+            if (InputManager.Instance.IsKeyHold(Keys.LeftControl) && InputManager.Instance.IsKeyPress(Keys.Z))
+                Editor.Instance.Undo();
 
-            if (Jtool.Instance.InputManager.IsKeyHold(Keys.LeftControl) && Jtool.Instance.InputManager.IsKeyPress(Keys.Y))
-                Jtool.Instance.Editor.Redo();
+            if (InputManager.Instance.IsKeyHold(Keys.LeftControl) && InputManager.Instance.IsKeyPress(Keys.Y))
+                Editor.Instance.Redo();
 
             void SaveMap()
             {
-                if (Jtool.Instance.MapManager.CurrentMapFile != null)
-                    Jtool.Instance.MapManager.SaveJMap(Jtool.Instance.MapManager.CurrentMapFile);
+                if (MapManager.Instance.CurrentMapFile != null)
+                    MapManager.Instance.SaveJMap(MapManager.Instance.CurrentMapFile);
                 else SaveMapAs();
             }
 
@@ -102,7 +104,7 @@ namespace ImJtool
                 d.Filter = "jtool map file|*.jmap";
                 if (d.ShowDialog() == DialogResult.OK)
                 {
-                    Jtool.Instance.MapManager.SaveJMap(d.FileName);
+                    MapManager.Instance.SaveJMap(d.FileName);
                 }
             }
 
@@ -112,7 +114,7 @@ namespace ImJtool
                 d.Filter = "jtool map file|*.jmap";
                 if (d.ShowDialog() == DialogResult.OK)
                 {
-                    Jtool.Instance.MapManager.LoadJMap(d.FileName);
+                    MapManager.Instance.LoadJMap(d.FileName);
                 }
             }
 
@@ -129,7 +131,7 @@ namespace ImJtool
                     
                     if (ImGui.MenuItem("Open Map", "CTRL+O"))
                     {
-                        if (Jtool.Instance.MapManager.Modified)
+                        if (MapManager.Instance.Modified)
                         {
                             showConfirmOpenMap = true;
                         }
@@ -156,11 +158,11 @@ namespace ImJtool
                 {
                     if (ImGui.MenuItem("Undo", "CTRL+Z"))
                     {
-                        Jtool.Instance.Editor.Undo();
+                        Editor.Instance.Undo();
                     }
                     if (ImGui.MenuItem("Redo", "CTRL+Y"))
                     {
-                        Jtool.Instance.Editor.Redo();
+                        Editor.Instance.Redo();
                     }
                     ImGui.Separator();
                     if (ImGui.MenuItem("Snap", "G"))
@@ -240,62 +242,62 @@ namespace ImJtool
                 }
                 if (ImGui.BeginMenu("Player", showMapWindow))
                 {
-                    if (ImGui.MenuItem("Dot Kid", null, Jtool.Instance.PlayerManager.Dotkid))
+                    if (ImGui.MenuItem("Dot Kid", null, PlayerManager.Instance.Dotkid))
                     {
-                        Jtool.Instance.PlayerManager.Dotkid = !Jtool.Instance.PlayerManager.Dotkid;
+                        PlayerManager.Instance.Dotkid = !PlayerManager.Instance.Dotkid;
                     }
-                    if (ImGui.MenuItem("Outline", null, Jtool.Instance.PlayerManager.DotkidOutline))
+                    if (ImGui.MenuItem("Outline", null, PlayerManager.Instance.DotkidOutline))
                     {
-                        Jtool.Instance.PlayerManager.DotkidOutline = !Jtool.Instance.PlayerManager.DotkidOutline;
+                        PlayerManager.Instance.DotkidOutline = !PlayerManager.Instance.DotkidOutline;
                     }
                     ImGui.Separator();
-                    if (ImGui.MenuItem("Enable Death", null, Jtool.Instance.PlayerManager.DeathEnable))
+                    if (ImGui.MenuItem("Enable Death", null, PlayerManager.Instance.DeathEnable))
                     {
-                        Jtool.Instance.PlayerManager.DeathEnable = !Jtool.Instance.PlayerManager.DeathEnable;
+                        PlayerManager.Instance.DeathEnable = !PlayerManager.Instance.DeathEnable;
                     }
-                    if (ImGui.MenuItem("Inf Jump", null, Jtool.Instance.PlayerManager.Infjump))
+                    if (ImGui.MenuItem("Inf Jump", null, PlayerManager.Instance.Infjump))
                     {
-                        Jtool.Instance.PlayerManager.Infjump = !Jtool.Instance.PlayerManager.Infjump;
+                        PlayerManager.Instance.Infjump = !PlayerManager.Instance.Infjump;
                     }
                     ImGui.Separator();
                     if (ImGui.BeginMenu("Save Type"))
                     {
-                        if (ImGui.MenuItem("Only Shoot", null, Jtool.Instance.PlayerManager.SaveType == SaveType.OnlyShoot))
+                        if (ImGui.MenuItem("Only Shoot", null, PlayerManager.Instance.SaveType == SaveType.OnlyShoot))
                         {
-                            Jtool.Instance.PlayerManager.SaveType = SaveType.OnlyShoot;
+                            PlayerManager.Instance.SaveType = SaveType.OnlyShoot;
                         }
-                        if (ImGui.MenuItem("Shoot Or Bullet", null, Jtool.Instance.PlayerManager.SaveType == SaveType.ShootOrBullet))
+                        if (ImGui.MenuItem("Shoot Or Bullet", null, PlayerManager.Instance.SaveType == SaveType.ShootOrBullet))
                         {
-                            Jtool.Instance.PlayerManager.SaveType = SaveType.ShootOrBullet;
+                            PlayerManager.Instance.SaveType = SaveType.ShootOrBullet;
                         }
                         ImGui.EndMenu();
                     }
                     if (ImGui.BeginMenu("Map Border Type"))
                     {
-                        if (ImGui.MenuItem("Killer", null, Jtool.Instance.PlayerManager.DeathBorder == DeathBorder.Killer))
+                        if (ImGui.MenuItem("Killer", null, PlayerManager.Instance.DeathBorder == DeathBorder.Killer))
                         {
-                            Jtool.Instance.PlayerManager.DeathBorder = DeathBorder.Killer;
+                            PlayerManager.Instance.DeathBorder = DeathBorder.Killer;
                         }
-                        if (ImGui.MenuItem("Solid", null, Jtool.Instance.PlayerManager.DeathBorder == DeathBorder.Solid))
+                        if (ImGui.MenuItem("Solid", null, PlayerManager.Instance.DeathBorder == DeathBorder.Solid))
                         {
-                            Jtool.Instance.PlayerManager.DeathBorder = DeathBorder.Solid;
+                            PlayerManager.Instance.DeathBorder = DeathBorder.Solid;
                         }
                         ImGui.EndMenu();
                     }
                     ImGui.Separator();
                     if (ImGui.BeginMenu("Mask (Hitbox)"))
                     {
-                        if (ImGui.MenuItem("Only Player", null, Jtool.Instance.PlayerManager.ShowMask == ShowMask.OnlyPlayer))
+                        if (ImGui.MenuItem("Only Player", null, PlayerManager.Instance.ShowMask == ShowMask.OnlyPlayer))
                         {
-                            Jtool.Instance.PlayerManager.ShowMask = ShowMask.OnlyPlayer;
+                            PlayerManager.Instance.ShowMask = ShowMask.OnlyPlayer;
                         }
-                        if (ImGui.MenuItem("Only Mask", null, Jtool.Instance.PlayerManager.ShowMask == ShowMask.OnlyMask))
+                        if (ImGui.MenuItem("Only Mask", null, PlayerManager.Instance.ShowMask == ShowMask.OnlyMask))
                         {
-                            Jtool.Instance.PlayerManager.ShowMask = ShowMask.OnlyMask;
+                            PlayerManager.Instance.ShowMask = ShowMask.OnlyMask;
                         }
-                        if (ImGui.MenuItem("Player And Mask", null, Jtool.Instance.PlayerManager.ShowMask == ShowMask.PlayerAndMask))
+                        if (ImGui.MenuItem("Player And Mask", null, PlayerManager.Instance.ShowMask == ShowMask.PlayerAndMask))
                         {
-                            Jtool.Instance.PlayerManager.ShowMask = ShowMask.PlayerAndMask;
+                            PlayerManager.Instance.ShowMask = ShowMask.PlayerAndMask;
                         }
                         ImGui.EndMenu();
                     }
@@ -361,13 +363,13 @@ namespace ImJtool
                 ImGui.SetNextWindowSize(new Vector2(800, 608) * MapWindowScale, ImGuiCond.Once);
 
                 var flags = ImGuiWindowFlags.NoBackground | ImGuiWindowFlags.NoResize;
-                if (!Jtool.Instance.Editor.MouseInTitle)
+                if (!Editor.Instance.MouseInTitle)
                     flags |= ImGuiWindowFlags.NoMove;
 
 
                 if (ImGui.Begin("Map Window", ref showMapWindow, flags))
                 {
-                    Jtool.Instance.Editor.Update();
+                    Editor.Instance.Update();
 
                     // Draw map window
                     var startPos = ImGui.GetWindowPos() + new Vector2(0, TitleBarHeight);
@@ -395,7 +397,7 @@ namespace ImJtool
                     {
                         if (ImGui.ImageButton(paletteIcons[type].ImGuiTexture, new Vector2(32, 32)))
                         {
-                            Jtool.Instance.Editor.SetSelectType(type);
+                            Editor.Instance.SetSelectType(type);
                         }
                     }
 
@@ -514,7 +516,7 @@ namespace ImJtool
                 ImGui.Columns(2);
                 ImGui.Text("Search");
                 ImGui.SameLine();
-                var names = Jtool.Instance.SkinManager.SkinNames;
+                var names = SkinManager.Instance.SkinNames;
                 if (ImGui.InputText("##SearchSkin", ref skinSearchString, 256))
                 {
                     skinSearchList.Clear();
@@ -530,10 +532,10 @@ namespace ImJtool
                 }
                 if (ImGui.BeginListBox("##Skins", new Vector2(200, 250)))
                 {
-                    if (Jtool.Instance.SkinManager.PreviewSkin == null)
+                    if (SkinManager.Instance.PreviewSkin == null)
                     {
                         skinSelect = 0;
-                        Jtool.Instance.SkinManager.PreviewSkin = new();
+                        SkinManager.Instance.PreviewSkin = new();
                     }
                     var count = skinSearchString.Length == 0 ? names.Count : skinSearchList.Count;
                     for (var i = 0; i < count; i++)
@@ -543,7 +545,7 @@ namespace ImJtool
                         if (ImGui.Selectable(name, skinSelect == idx))
                         {
                             skinSelect = idx;
-                            Jtool.Instance.SkinManager.PreviewSkin = new(name);
+                            SkinManager.Instance.PreviewSkin = new(name);
                         }
                     }
                     ImGui.EndListBox();
@@ -556,7 +558,7 @@ namespace ImJtool
                 {
                     ImGui.SetCursorPos(new Vector2(startPos.X + xx, startPos.Y + yy));
 
-                    var spr = Jtool.Instance.SkinManager.GetPreviewSpriteOfType(type);
+                    var spr = SkinManager.Instance.GetPreviewSpriteOfType(type);
                     var item = spr.GetItem(0);
                     var uv = item.GetUV();
                     ImGui.Image(item.ImGuiTexture, new Vector2(item.W, item.H), uv.Item1, uv.Item2);
@@ -589,7 +591,7 @@ namespace ImJtool
                 ImGui.Columns();
                 if (ImGui.Button("Apply"))
                 {
-                    Jtool.Instance.SkinManager.ApplySkin(Jtool.Instance.SkinManager.PreviewSkin.Name);
+                    SkinManager.Instance.ApplySkin(SkinManager.Instance.PreviewSkin.Name);
                     GeneratePaletteIcons();
 
                     showSkinWindow = false;
@@ -637,8 +639,8 @@ namespace ImJtool
             if (sender == "MapObjectManager" && text.Contains("Blood"))
                 return;
 
-            Jtool.Instance.Gui.logText.Add((sender, text));
-            Jtool.Instance.Gui.scrollToBottom = true;
+            Instance.logText.Add((sender, text));
+            Instance.scrollToBottom = true;
         }
 
         public static bool ContainsWord(string word, string otherword)

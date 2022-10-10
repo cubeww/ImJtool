@@ -122,21 +122,6 @@ namespace ImJtool
         public int BBoxTop { get; private set; }
         public int BBoxBottom { get; private set; }
 
-        public MapObjectManager MapObjectManager
-        {
-            get => Jtool.Instance.MapObjectManager;
-        }
-
-        public InputManager InputManager
-        {
-            get => Jtool.Instance.InputManager;
-        }
-
-        public PlayerManager PlayerManager
-        {
-            get => Jtool.Instance.PlayerManager;
-        }
-
         public static Dictionary<Type, string> SpriteNames = new()
         {
             [typeof(SpikeUp)] = "spike_up",
@@ -228,11 +213,11 @@ namespace ImJtool
         public static Dictionary<Type, List<Type>> ChildTypes { get; set; } = new();
         public void SetSprite(string spriteName)
         {
-            Sprite = Jtool.Instance.ResourceManager.GetSprite(spriteName);
+            Sprite = ResourceManager.Instance.GetSprite(spriteName);
         }
         public void SetMask(string spriteName)
         {
-            MaskSprite = Jtool.Instance.ResourceManager.GetSprite(spriteName);
+            MaskSprite = ResourceManager.Instance.GetSprite(spriteName);
         }
 
         /// <summary>
@@ -246,7 +231,7 @@ namespace ImJtool
             }
             else if (SpriteNames.ContainsKey(GetType()))
             {
-                Sprite = Jtool.Instance.ResourceManager.GetSprite(SpriteNames[GetType()]);
+                Sprite = ResourceManager.Instance.GetSprite(SpriteNames[GetType()]);
             }
 
             MaskSprite = Sprite;
@@ -312,7 +297,7 @@ namespace ImJtool
         {
             MapObject result = null;
 
-            var pool = Jtool.Instance.MapObjectManager.GetTypeObjectsWithChildren(type);
+            var pool = MapObjectManager.Instance.GetTypeObjectsWithChildren(type);
             if (pool.Count == 0)
                 return result;
 
@@ -535,7 +520,7 @@ namespace ImJtool
         }
         public void ApplySkin()
         {
-            var skin = Jtool.Instance.SkinManager.GetCurrentObjectOfType(GetType());
+            var skin = SkinManager.Instance.GetCurrentObjectOfType(GetType());
             if (skin != null)
             {
                 Sprite = skin.Sprite;
@@ -543,7 +528,7 @@ namespace ImJtool
             }
             else
             {
-                Sprite = Jtool.Instance.ResourceManager.GetSprite(SpriteNames[GetType()]);
+                Sprite = ResourceManager.Instance.GetSprite(SpriteNames[GetType()]);
             }
         }
     }

@@ -11,6 +11,7 @@ namespace ImJtool
 {
     public class SkinManager
     {
+        public static SkinManager Instance => Jtool.Instance.SkinManager;
         /// <summary>
         /// Skin Package used by current map objects.
         /// </summary>
@@ -46,7 +47,7 @@ namespace ImJtool
             var package = new SkinPackage(name);
             CurrentSkin = package;
 
-            foreach (var obj in Jtool.Instance.MapObjectManager.Objects)
+            foreach (var obj in MapObjectManager.Instance.Objects)
             {
                 if (MapObject.SkinableObjects.Contains(obj.GetType()))
                 {
@@ -69,7 +70,7 @@ namespace ImJtool
         {
             if (MapObject.SkinableObjects.Contains(type) && CurrentSkin.SkinObjects.ContainsKey(type))
                 return CurrentSkin.SkinObjects[type].Sprite;
-            else return Jtool.Instance.ResourceManager.GetSprite(MapObject.SpriteNames[type]);
+            else return ResourceManager.Instance.GetSprite(MapObject.SpriteNames[type]);
         }
         /// <summary>
         /// Will get the skin object of the specified type of object in the preview skin package.
@@ -86,7 +87,7 @@ namespace ImJtool
         {
             if (PreviewSkin.SkinObjects.ContainsKey(type))
                 return PreviewSkin.SkinObjects[type].Sprite;
-            else return Jtool.Instance.ResourceManager.GetSprite(MapObject.SpriteNames[type]);
+            else return ResourceManager.Instance.GetSprite(MapObject.SpriteNames[type]);
         }
     }
     public enum BgType

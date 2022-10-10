@@ -11,6 +11,7 @@ namespace ImJtool
     /// </summary>
     public class MapObjectManager
     {
+        public static MapObjectManager Instance => Jtool.Instance.MapObjectManager;
         public MapObjectManager()
         {
             // Generate a "subclass info list" to use if needed

@@ -11,6 +11,7 @@ namespace ImJtool
     /// </summary>
     public class ResourceManager
     {
+        public static ResourceManager Instance => Jtool.Instance.ResourceManager;
         Dictionary<string, Sprite> sprites = new();
         Dictionary<string, Texture2D> textures = new();
 

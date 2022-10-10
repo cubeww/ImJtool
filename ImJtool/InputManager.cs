@@ -8,6 +8,8 @@ namespace ImJtool
     /// </summary>
     public class InputManager
     {
+        public static InputManager Instance => Jtool.Instance.InputManager;
+
         KeyboardState state;
         KeyboardState lastState;
 

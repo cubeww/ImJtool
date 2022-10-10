@@ -12,6 +12,7 @@ namespace ImJtool
     /// </summary>
     public class Editor
     {
+        public static Editor Instance => Jtool.Instance.Editor;
         public bool MouseInTitle { get; set; }
         public Type SelectType { get; set; } = typeof(Block);
         public Vector2 Snap { get; private set; } = new(32, 32);
@@ -38,7 +39,7 @@ namespace ImJtool
             var contentStartPos = windowPos + new Vector2(0, Gui.TitleBarHeight);
 
             MouseInTitle = new Rectangle((int)windowPos.X, (int)windowPos.Y, (int)windowSize.X, (int)Gui.TitleBarHeight).Contains(mousePos.X, mousePos.Y);
-            var mouseInPos = (mousePos - contentStartPos) / Jtool.Instance.Gui.MapWindowScale;
+            var mouseInPos = (mousePos - contentStartPos) / Gui.Instance.MapWindowScale;
             var cursorInArea = new Rectangle(0, 0, 799, 607).Contains(mouseInPos);
 
             var leftPress = ImGui.IsMouseClicked(ImGuiMouseButton.Left);
@@ -66,7 +67,7 @@ namespace ImJtool
                     {
                         if (handedObject == null)
                         {
-                            var col = Jtool.Instance.MapObjectManager.CollisionPoint(mouseInPos.X, mouseInPos.Y);
+                            var col = MapObjectManager.Instance.CollisionPoint(mouseInPos.X, mouseInPos.Y);
                             if (col != null)
                             {
                                 handedObject = col;
@@ -89,7 +90,7 @@ namespace ImJtool
                     ImGui.SetMouseCursor(ImGuiMouseCursor.Arrow);
                     if (leftPress)
                     {
-                        var col = Jtool.Instance.MapObjectManager.CollisionPointList(mouseInPos.X, mouseInPos.Y);
+                        var col = MapObjectManager.Instance.CollisionPointList(mouseInPos.X, mouseInPos.Y);
                         foreach (var i in col)
                         {
                             SelectType = i.GetType();
@@ -151,11 +152,11 @@ namespace ImJtool
                         List<MapObject> col;
                         if (rightHoldLast)
                         {
-                            col = Jtool.Instance.MapObjectManager.CollisionLineList(mouseLastPos.X, mouseLastPos.Y, mouseInPos.X, mouseInPos.Y);
+                            col = MapObjectManager.Instance.CollisionLineList(mouseLastPos.X, mouseLastPos.Y, mouseInPos.X, mouseInPos.Y);
                         }
                         else
                         {
-                            col = Jtool.Instance.MapObjectManager.CollisionPointList(mouseInPos.X, mouseInPos.Y);
+                            col = MapObjectManager.Instance.CollisionPointList(mouseInPos.X, mouseInPos.Y);
                         }
                         foreach (var i in col)
                         {
@@ -187,7 +188,7 @@ namespace ImJtool
             {
                 // Preview rendering is implemented in "Jtool.cs"
                 NeedDrawPreview = true;
-                PreviewSprite = Jtool.Instance.SkinManager.GetCurrentSpriteOfType(SelectType);
+                PreviewSprite = SkinManager.Instance.GetCurrentSpriteOfType(SelectType);
                 PreviewPosition = snappedPos;
             }
             else
@@ -237,7 +238,7 @@ namespace ImJtool
                 undoStack.Push(curEvent);
                 curEvent = null;
 
-                Jtool.Instance.MapManager.Modified = true;
+                MapManager.Instance.Modified = true;
             }
         }
         /// <summary>
@@ -245,9 +246,9 @@ namespace ImJtool
         /// </summary>
         public void FinishCreateObject(float x, float y)
         {
-            if (Jtool.Instance.MapObjectManager.AtPosition(x, y, SelectType).Count == 0)
+            if (MapObjectManager.Instance.AtPosition(x, y, SelectType).Count == 0)
             {
-                var obj = Jtool.Instance.MapObjectManager.CreateObject(x, y, SelectType);
+                var obj = MapObjectManager.Instance.CreateObject(x, y, SelectType);
                 AddCreateEvent(x, y, SelectType);
             }
         }
@@ -278,16 +279,16 @@ namespace ImJtool
                     switch (lastEvent.type)
                     {
                         case UndoEvent.EventType.Create:
-                            foreach (var i in Jtool.Instance.MapObjectManager.AtPosition(subEvent.x, subEvent.y, subEvent.objectType))
+                            foreach (var i in MapObjectManager.Instance.AtPosition(subEvent.x, subEvent.y, subEvent.objectType))
                             {
                                 i.Destroy();
                             }
                             break;
                         case UndoEvent.EventType.Remove:
-                            Jtool.Instance.MapObjectManager.CreateObject(subEvent.x, subEvent.y, subEvent.objectType);
+                            MapObjectManager.Instance.CreateObject(subEvent.x, subEvent.y, subEvent.objectType);
                             break;
                         case UndoEvent.EventType.Move:
-                            foreach (var i in Jtool.Instance.MapObjectManager.AtPosition(subEvent.newX, subEvent.newY, subEvent.objectType))
+                            foreach (var i in MapObjectManager.Instance.AtPosition(subEvent.newX, subEvent.newY, subEvent.objectType))
                             {
                                 i.X = subEvent.oldX;
                                 i.Y = subEvent.oldY;
@@ -313,16 +314,16 @@ namespace ImJtool
                     switch (lastEvent.type)
                     {
                         case UndoEvent.EventType.Create:
-                            Jtool.Instance.MapObjectManager.CreateObject(subEvent.x, subEvent.y, subEvent.objectType);
+                            MapObjectManager.Instance.CreateObject(subEvent.x, subEvent.y, subEvent.objectType);
                             break;
                         case UndoEvent.EventType.Remove:
-                            foreach (var i in Jtool.Instance.MapObjectManager.AtPosition(subEvent.x, subEvent.y, subEvent.objectType))
+                            foreach (var i in MapObjectManager.Instance.AtPosition(subEvent.x, subEvent.y, subEvent.objectType))
                             {
                                 i.Destroy();
                             }
                             break;
                         case UndoEvent.EventType.Move:
-                            foreach (var i in Jtool.Instance.MapObjectManager.AtPosition(subEvent.oldX, subEvent.oldY, subEvent.objectType))
+                            foreach (var i in MapObjectManager.Instance.AtPosition(subEvent.oldX, subEvent.oldY, subEvent.objectType))
                             {
                                 i.X = subEvent.newX;
                                 i.Y = subEvent.newY;
