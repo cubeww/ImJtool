@@ -1,7 +1,13 @@
 ﻿using ImGuiNET;
+using Microsoft.Win32;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
+using System.IO;
+using System.Linq;
+using System.Reflection;
+using System.Security.Principal;
+using System.Windows.Forms;
 
 namespace ImJtool
 {
@@ -11,6 +17,7 @@ namespace ImJtool
     public class Jtool : Game
     {
         public static string Caption { get; } = "ImJtool";
+        public string[] Args { get; set; }
         public GraphicsDeviceManager Graphics { get; set; }
         public ImGuiRenderer ImGuiRender { get; set; }
         public SpriteBatch SpriteBatch { get; set; }
@@ -55,6 +62,8 @@ namespace ImJtool
         /// </summary>
         protected override void Initialize()
         {
+            Directory.SetCurrentDirectory(Application.StartupPath);
+
             ImGuiRender = new ImGuiRenderer(this);
 
             // Make imgui font bigger
@@ -76,6 +85,12 @@ namespace ImJtool
 
             base.Initialize();
         }
+        public static bool IsAdministrator()
+        {
+            return (new WindowsPrincipal(WindowsIdentity.GetCurrent()))
+                      .IsInRole(WindowsBuiltInRole.Administrator);
+        }
+
         /// <summary>
         /// Load game resources from files
         /// </summary>
@@ -96,6 +111,27 @@ namespace ImJtool
             MapObjectManager.CreateObject(352 + 64, 416, typeof(Block));
             MapObjectManager.CreateObject(384, 384, typeof(PlayerStart));
             MapObjectManager.CreateObject(0, 0, typeof(Bg));
+
+            // Set as default program for jmap
+            if (IsAdministrator())
+            {
+                string ext = ".jmap";
+                RegistryKey key = Registry.ClassesRoot.CreateSubKey(ext);
+                key.SetValue("", "ImJtool");
+                key.Close();
+
+                key = Registry.ClassesRoot.CreateSubKey(ext + "\\Shell\\Open\\command");
+
+                key.SetValue("", "\"" + Application.ExecutablePath + "\" \"%L\"");
+                key.Close();
+
+                key = Registry.ClassesRoot.CreateSubKey(ext + "\\DefaultIcon");
+                key.SetValue("", Application.StartupPath + "\\jmap.ico");
+                key.Close();
+            }
+            // Load exe argument map
+            if (Args.Length != 0)
+                MapManager.LoadJMap(Args[0]);
 
             base.LoadContent();
         }
