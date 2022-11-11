@@ -9,25 +9,24 @@ using IniParser;
 
 namespace ImJtool
 {
-    public class SkinManager
+    public static class SkinManager
     {
-        public static SkinManager Instance => Jtool.Instance.SkinManager;
         /// <summary>
         /// Skin Package used by current map objects.
         /// </summary>
-        public SkinPackage CurrentSkin { get; set; }
+        public static SkinPackage CurrentSkin { get; set; }
         /// <summary>
         /// Skin Package used by preview of Skin selector.
         /// </summary>
-        public SkinPackage PreviewSkin { get; set; }
+        public static SkinPackage PreviewSkin { get; set; }
         /// <summary>
         /// All names obtained from skins.ini
         /// </summary>
-        public List<string> SkinNames { get; set; } = new();
+        public static List<string> SkinNames { get; set; } = new();
         /// <summary>
         /// Load skins.ini and get the skin names.
         /// </summary>
-        public void LoadConfig()
+        public static void LoadConfig()
         {
             var parser = new FileIniDataParser();
             var data = parser.ReadFile("skins/skins.ini");
@@ -42,12 +41,12 @@ namespace ImJtool
         /// Apply the skin package named "name".
         /// It iterates over all map objects that support skins and switches their sprites.
         /// </summary>
-        public void ApplySkin(string name)
+        public static void ApplySkin(string name)
         {
             var package = new SkinPackage(name);
             CurrentSkin = package;
 
-            foreach (var obj in MapObjectManager.Instance.Objects)
+            foreach (var obj in MapObjectManager.Objects)
             {
                 if (MapObject.SkinableObjects.Contains(obj.GetType()))
                 {
@@ -58,7 +57,7 @@ namespace ImJtool
         /// <summary>
         /// Will get the skin object of the specified type of object in the current skin package.
         /// </summary>
-        public SkinObject GetCurrentObjectOfType(Type type)
+        public static SkinObject GetCurrentObjectOfType(Type type)
         {
             return CurrentSkin.SkinObjects.ContainsKey(type) ? CurrentSkin.SkinObjects[type] : null;
         }
@@ -66,16 +65,16 @@ namespace ImJtool
         /// Will try to get the sprite of the specified type of object in the current skin package.
         /// If the sprite does not exist, the default sprite is returned.
         /// </summary>
-        public Sprite GetCurrentSpriteOfType(Type type)
+        public static Sprite GetCurrentSpriteOfType(Type type)
         {
             if (MapObject.SkinableObjects.Contains(type) && CurrentSkin.SkinObjects.ContainsKey(type))
                 return CurrentSkin.SkinObjects[type].Sprite;
-            else return ResourceManager.Instance.GetSprite(MapObject.SpriteNames[type]);
+            else return ResourceManager.GetSprite(MapObject.SpriteNames[type]);
         }
         /// <summary>
         /// Will get the skin object of the specified type of object in the preview skin package.
         /// </summary>
-        public SkinObject GetPreviewObjectOfType(Type type)
+        public static SkinObject GetPreviewObjectOfType(Type type)
         {
             return PreviewSkin.SkinObjects.ContainsKey(type) ? CurrentSkin.SkinObjects[type] : null;
         }
@@ -83,11 +82,11 @@ namespace ImJtool
         /// Will try to get the sprite of the specified type of object in the preview skin package.
         /// If the sprite does not exist, the default sprite is returned.
         /// </summary>
-        public Sprite GetPreviewSpriteOfType(Type type)
+        public static Sprite GetPreviewSpriteOfType(Type type)
         {
             if (PreviewSkin.SkinObjects.ContainsKey(type))
                 return PreviewSkin.SkinObjects[type].Sprite;
-            else return ResourceManager.Instance.GetSprite(MapObject.SpriteNames[type]);
+            else return ResourceManager.GetSprite(MapObject.SpriteNames[type]);
         }
     }
     public enum BgType

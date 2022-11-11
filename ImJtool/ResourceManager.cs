@@ -9,13 +9,12 @@ namespace ImJtool
     /// <summary>
     /// Store all resources (texture, sprite, sound, etc.)
     /// </summary>
-    public class ResourceManager
+    public static class ResourceManager
     {
-        public static ResourceManager Instance => Jtool.Instance.ResourceManager;
-        Dictionary<string, Sprite> sprites = new();
-        Dictionary<string, Texture2D> textures = new();
+        static Dictionary<string, Sprite> sprites = new();
+        static Dictionary<string, Texture2D> textures = new();
 
-        public Texture2D CreateTexture(string name, string filename)
+        public static Texture2D CreateTexture(string name, string filename)
         {
             var texture = Texture2D.FromFile(Jtool.Instance.GraphicsDevice, filename);
             textures[name] = texture;
@@ -23,7 +22,7 @@ namespace ImJtool
             return texture;
         }
 
-        public Sprite CreateSprite(string name, int xo, int yo)
+        public static Sprite CreateSprite(string name, int xo, int yo)
         {
             var sprite = new Sprite(xo, yo);
             sprites[name] = sprite;
@@ -31,7 +30,7 @@ namespace ImJtool
             return sprite;
         }
 
-        public void LoadTextures()
+        public static void LoadTextures()
         {
             // Load all images according to define.json
             var defineJson = File.ReadAllText("textures/define.json");
@@ -50,12 +49,12 @@ namespace ImJtool
             }
         }
 
-        public Sprite GetSprite(string name)
+        public static Sprite GetSprite(string name)
         {
             return sprites[name];
         }
 
-        public Texture2D GetTexture(string name)
+        public static Texture2D GetTexture(string name)
         {
             return textures[name];
         }

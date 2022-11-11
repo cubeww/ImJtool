@@ -27,54 +27,52 @@
         SecondWait,
         Done,
     };
-    public class PlayerManager
+    public static class PlayerManager
     {
-        public static PlayerManager Instance => Jtool.Instance.PlayerManager;
-        public PlayerSave CurrentSave { get; set; } = new();
-        public Player Player { get; set; }
+        public static PlayerSave CurrentSave { get; set; } = new();
+        public static Player Player { get; set; }
+        public static float Face { get; set; } = 1;
+        public static float Grav { get; set; } = 1;
+        public static bool Dotkid { get; set; } = false;
+        public static bool DotkidOutline { get; set; } = false;
+        public static bool DeathEnable { get; set; } = true;
+        public static bool Infjump { get; set; } = false;
 
-        public float Face { get; set; } = 1;
-        public float Grav { get; set; } = 1;
-        public bool Dotkid { get; set; } = false;
-        public bool DotkidOutline { get; set; } = false;
-        public bool DeathEnable { get; set; } = true;
-        public bool Infjump { get; set; } = false;
+        public static ShowMask ShowMask { get; set; } = ShowMask.OnlyPlayer;
+        public static SaveType SaveType { get; set; } = SaveType.OnlyShoot;
 
-        public ShowMask ShowMask { get; set; } = ShowMask.OnlyPlayer;
-        public SaveType SaveType { get; set; } = SaveType.OnlyShoot;
-
-        public DeathBorder deathBorder = DeathBorder.Killer;
-        public DeathBorder DeathBorder 
+        public static DeathBorder deathBorder = DeathBorder.Killer;
+        public static DeathBorder DeathBorder 
         {
             get => deathBorder;
             set
             {
                 deathBorder = value;
-                MapObjectManager.Instance.DestroyByType(typeof(BorderBlock));
+                MapObjectManager.DestroyByType(typeof(BorderBlock));
                 if (value == DeathBorder.Solid)
                 {
-                    var obj = MapObjectManager.Instance.CreateObject(-32, 0, typeof(BorderBlock));
+                    var obj = MapObjectManager.CreateObject(-32, 0, typeof(BorderBlock));
                     obj.YScale = 19;
-                    obj = MapObjectManager.Instance.CreateObject(800, 0, typeof(BorderBlock));
+                    obj = MapObjectManager.CreateObject(800, 0, typeof(BorderBlock));
                     obj.YScale = 19;
-                    obj = MapObjectManager.Instance.CreateObject(0, -32, typeof(BorderBlock));
+                    obj = MapObjectManager.CreateObject(0, -32, typeof(BorderBlock));
                     obj.XScale = 25;
-                    obj = MapObjectManager.Instance.CreateObject(0, 608, typeof(BorderBlock));
+                    obj = MapObjectManager.CreateObject(0, 608, typeof(BorderBlock));
                     obj.XScale = 25;
                 }
             }
         }
 
-        public void Update()
+        public static void Update()
         {
-            if (InputManager.Instance.IsKeyPress(Microsoft.Xna.Framework.Input.Keys.R))
+            if (InputManager.IsKeyPress(Microsoft.Xna.Framework.Input.Keys.R))
             {
                 // Press R
-                PlayerManager.Instance.Load();
+                PlayerManager.Load();
             }
         }
 
-        public void Save()
+        public static void Save()
         {
             if (Player != null)
             {
@@ -85,12 +83,12 @@
                 Gui.Log("PlayerManager", $"Player saved: {{ X: {CurrentSave.X}, Y: {CurrentSave.Y} }}");
             }
         }
-        public void Load()
+        public static void Load()
         {
-            MapObjectManager.Instance.DestroyByType(typeof(Player));
-            MapObjectManager.Instance.DestroyByType(typeof(Blood));
+            MapObjectManager.DestroyByType(typeof(Player));
+            MapObjectManager.DestroyByType(typeof(Blood));
 
-            MapObjectManager.Instance.CreateObject(CurrentSave.X, CurrentSave.Y, typeof(Player));
+            MapObjectManager.CreateObject(CurrentSave.X, CurrentSave.Y, typeof(Player));
             Grav = CurrentSave.Grav;
             Face = CurrentSave.Face;
             Gui.Log("PlayerManager", $"Player loaded: {{ X: {CurrentSave.X}, Y: {CurrentSave.Y} }}");

@@ -19,61 +19,58 @@ namespace ImJtool
     /// <summary>
     /// Define all GUI elements
     /// </summary>
-    public class Gui
+    public static class Gui
     {
-        public static Gui Instance => Jtool.Instance.Gui;
-
         // Show window fields
-        bool showMapWindow = true;
-        bool showSnapWindow = false;
-        bool showShiftWindow = false;
-        bool showSkinWindow = false;
-        bool showPaletteWindow = true;
-        bool showLogWindow = false;
-        bool showAnalysisWindow = false;
-        bool showAboutWindow = false;
+        static bool showMapWindow = true;
+        static bool showSnapWindow = false;
+        static bool showShiftWindow = false;
+        static bool showSkinWindow = false;
+        static bool showPaletteWindow = true;
+        static bool showLogWindow = false;
+        static bool showAnalysisWindow = false;
+        static bool showAboutWindow = false;
 
-        bool showConfirmWindow = false;
-        string confirmText = "";
-        Action confirmAction = null;
+        static bool showConfirmWindow = false;
+        static string confirmText = "";
+        static Action confirmAction = null;
 
-        string currentTheme;
+        static string currentTheme;
 
-
-        int snap = 32;
+        static int snap = 32;
 
         /// <summary>
         /// Due to some limitations of ImGui.Image, 
         /// it is now necessary to customize the texture for each Palette Object.
         /// </summary>
-        Dictionary<Type, SpriteItem> paletteIcons = new();
+        static Dictionary<Type, SpriteItem> paletteIcons = new();
 
-        public bool ShowMouseCoord { get; set; } = false;
-        List<(string, string)> logText = new();
-        bool scrollToBottom = true;
+        public static bool ShowMouseCoord { get; set; } = false;
+        static List<(string, string)> logText = new();
+        static bool scrollToBottom = true;
 
-        string skinSearchString = "";
-        List<int> skinSearchList = new();
-        int skinSelect = 0;
+        static string skinSearchString = "";
+        static List<int> skinSearchList = new();
+        static int skinSelect = 0;
 
         /// <summary>
         /// The scale of the map window.
         /// On high resolution screens (140ppi+), I recommend setting this larger.
         /// </summary>
-        public float MapWindowScale { get; set; } = 1.5f;
+        public static float MapWindowScale { get; set; } = 1.5f;
         public static float TitleBarHeight => ImGui.GetFontSize() + ImGui.GetStyle().FramePadding.Y * 2;
 
-        public IntPtr MapTexture { get; set; }
-        uint MakeUIntColor(byte r, byte g, byte b, byte a) { uint ret = a; ret <<= 8; ret += b; ret <<= 8; ret += g; ret <<= 8; ret += r; return ret; }
+        public static IntPtr MapTexture { get; set; }
+        static uint MakeUIntColor(byte r, byte g, byte b, byte a) { uint ret = a; ret <<= 8; ret += b; ret <<= 8; ret += g; ret <<= 8; ret += r; return ret; }
         /// <summary>
         /// Because the objects sprites of the palette need to have a fixed size, 
         /// we need to generate textures for them separately.
         /// </summary>
-        public void GeneratePaletteIcons()
+        public static void GeneratePaletteIcons()
         {
             foreach (var type in MapObject.PaletteObjects)
             {
-                var item = SkinManager.Instance.GetCurrentSpriteOfType(type).GetItem(0);
+                var item = SkinManager.GetCurrentSpriteOfType(type).GetItem(0);
                 var tex = item.Texture;
                 var gd = Jtool.Instance.GraphicsDevice;
                 var sb = Jtool.Instance.SpriteBatch;
@@ -89,8 +86,8 @@ namespace ImJtool
                 paletteIcons[type] = new SpriteItem(rt, 0, 0, 32, 32);
             }
         }
-        public Color BgColor = Color.Black;
-        public void SetTheme(string name)
+        public static Color BgColor = Color.Black;
+        public static void SetTheme(string name)
         {
             currentTheme = name;
             var colors = ImGui.GetStyle().Colors;
@@ -206,20 +203,20 @@ namespace ImJtool
             }
         }
 
-        void SetConfirm(Action action, string text)
+        static void SetConfirm(Action action, string text)
         {
             showConfirmWindow = true;
             confirmAction = action;
             confirmText = text;
         }
-        public void Update()
+        public static void Update()
         {
             // Shortcut keys
-            if (InputManager.Instance.IsKeyHold(Keys.LeftControl) && InputManager.Instance.IsKeyPress(Keys.Z))
-                Editor.Instance.Undo();
+            if (InputManager.IsKeyHold(Keys.LeftControl) && InputManager.IsKeyPress(Keys.Z))
+                Editor.Undo();
 
-            if (InputManager.Instance.IsKeyHold(Keys.LeftControl) && InputManager.Instance.IsKeyPress(Keys.Y))
-                Editor.Instance.Redo();
+            if (InputManager.IsKeyHold(Keys.LeftControl) && InputManager.IsKeyPress(Keys.Y))
+                Editor.Redo();
 
             // Define main menu
             if (ImGui.BeginMainMenuBar())
@@ -230,31 +227,31 @@ namespace ImJtool
                     {
                         showMapWindow = true;
 
-                        if (MapManager.Instance.Modified)
+                        if (MapManager.Modified)
                         {
-                            SetConfirm(MapManager.Instance.NewMap, "Map has been changed. Save Changes?");
+                            SetConfirm(MapManager.NewMap, "Map has been changed. Save Changes?");
                         }
-                        else MapManager.Instance.NewMap();
+                        else MapManager.NewMap();
                     }
                     ImGui.Separator();
 
                     if (ImGui.MenuItem("Open Map", "CTRL+O"))
                     {
-                        if (MapManager.Instance.Modified)
+                        if (MapManager.Modified)
                         {
-                            SetConfirm(MapManager.Instance.OpenMap, "Map has been changed. Save Changes?");
+                            SetConfirm(MapManager.OpenMap, "Map has been changed. Save Changes?");
                         }
-                        else MapManager.Instance.OpenMap();
+                        else MapManager.OpenMap();
                     }
                     ImGui.Separator();
 
                     if (ImGui.MenuItem("Save Map", "CTRL+S"))
                     {
-                        MapManager.Instance.SaveMap();
+                        MapManager.SaveMap();
                     }
                     if (ImGui.MenuItem("Save As..."))
                     {
-                        MapManager.Instance.SaveMapAs();
+                        MapManager.SaveMapAs();
                     }
                     ImGui.Separator();
                     if (ImGui.MenuItem("Exit", "ALT+F4"))
@@ -267,11 +264,11 @@ namespace ImJtool
                 {
                     if (ImGui.MenuItem("Undo", "CTRL+Z"))
                     {
-                        Editor.Instance.Undo();
+                        Editor.Undo();
                     }
                     if (ImGui.MenuItem("Redo", "CTRL+Y"))
                     {
-                        Editor.Instance.Redo();
+                        Editor.Redo();
                     }
                     ImGui.Separator();
                     if (ImGui.MenuItem("Snap", "G"))
@@ -288,27 +285,27 @@ namespace ImJtool
                 {
                     if (ImGui.BeginMenu("Grid"))
                     {
-                        if (ImGui.MenuItem("Show Grid", null, Editor.Instance.ShowGrid))
+                        if (ImGui.MenuItem("Show Grid", null, Editor.ShowGrid))
                         {
-                            Editor.Instance.ShowGrid = !Editor.Instance.ShowGrid;
+                            Editor.ShowGrid = !Editor.ShowGrid;
                         }
                         ImGui.Separator();
                         if (ImGui.BeginMenu("Grid Size"))
                         {
-                            if (ImGui.MenuItem("32x32", null, Editor.Instance.GridSize == 32))
+                            if (ImGui.MenuItem("32x32", null, Editor.GridSize == 32))
                             {
-                                Editor.Instance.GridSize = 32;
-                                Editor.Instance.RedrawGrid();
+                                Editor.GridSize = 32;
+                                Editor.RedrawGrid();
                             }
-                            if (ImGui.MenuItem("16x16", null, Editor.Instance.GridSize == 16))
+                            if (ImGui.MenuItem("16x16", null, Editor.GridSize == 16))
                             {
-                                Editor.Instance.GridSize = 16;
-                                Editor.Instance.RedrawGrid();
+                                Editor.GridSize = 16;
+                                Editor.RedrawGrid();
                             }
-                            if (ImGui.MenuItem("8x8", null, Editor.Instance.GridSize == 8))
+                            if (ImGui.MenuItem("8x8", null, Editor.GridSize == 8))
                             {
-                                Editor.Instance.GridSize = 8;
-                                Editor.Instance.RedrawGrid();
+                                Editor.GridSize = 8;
+                                Editor.RedrawGrid();
                             }
                             ImGui.EndMenu();
                         }
@@ -359,62 +356,62 @@ namespace ImJtool
                 }
                 if (ImGui.BeginMenu("Player", showMapWindow))
                 {
-                    if (ImGui.MenuItem("Dot Kid", null, PlayerManager.Instance.Dotkid))
+                    if (ImGui.MenuItem("Dot Kid", null, PlayerManager.Dotkid))
                     {
-                        PlayerManager.Instance.Dotkid = !PlayerManager.Instance.Dotkid;
+                        PlayerManager.Dotkid = !PlayerManager.Dotkid;
                     }
-                    if (ImGui.MenuItem("Outline", null, PlayerManager.Instance.DotkidOutline))
+                    if (ImGui.MenuItem("Outline", null, PlayerManager.DotkidOutline))
                     {
-                        PlayerManager.Instance.DotkidOutline = !PlayerManager.Instance.DotkidOutline;
+                        PlayerManager.DotkidOutline = !PlayerManager.DotkidOutline;
                     }
                     ImGui.Separator();
-                    if (ImGui.MenuItem("Enable Death", null, PlayerManager.Instance.DeathEnable))
+                    if (ImGui.MenuItem("Enable Death", null, PlayerManager.DeathEnable))
                     {
-                        PlayerManager.Instance.DeathEnable = !PlayerManager.Instance.DeathEnable;
+                        PlayerManager.DeathEnable = !PlayerManager.DeathEnable;
                     }
-                    if (ImGui.MenuItem("Inf Jump", null, PlayerManager.Instance.Infjump))
+                    if (ImGui.MenuItem("Inf Jump", null, PlayerManager.Infjump))
                     {
-                        PlayerManager.Instance.Infjump = !PlayerManager.Instance.Infjump;
+                        PlayerManager.Infjump = !PlayerManager.Infjump;
                     }
                     ImGui.Separator();
                     if (ImGui.BeginMenu("Save Type"))
                     {
-                        if (ImGui.MenuItem("Only Shoot", null, PlayerManager.Instance.SaveType == SaveType.OnlyShoot))
+                        if (ImGui.MenuItem("Only Shoot", null, PlayerManager.SaveType == SaveType.OnlyShoot))
                         {
-                            PlayerManager.Instance.SaveType = SaveType.OnlyShoot;
+                            PlayerManager.SaveType = SaveType.OnlyShoot;
                         }
-                        if (ImGui.MenuItem("Shoot Or Bullet", null, PlayerManager.Instance.SaveType == SaveType.ShootOrBullet))
+                        if (ImGui.MenuItem("Shoot Or Bullet", null, PlayerManager.SaveType == SaveType.ShootOrBullet))
                         {
-                            PlayerManager.Instance.SaveType = SaveType.ShootOrBullet;
+                            PlayerManager.SaveType = SaveType.ShootOrBullet;
                         }
                         ImGui.EndMenu();
                     }
                     if (ImGui.BeginMenu("Map Border Type"))
                     {
-                        if (ImGui.MenuItem("Killer", null, PlayerManager.Instance.DeathBorder == DeathBorder.Killer))
+                        if (ImGui.MenuItem("Killer", null, PlayerManager.DeathBorder == DeathBorder.Killer))
                         {
-                            PlayerManager.Instance.DeathBorder = DeathBorder.Killer;
+                            PlayerManager.DeathBorder = DeathBorder.Killer;
                         }
-                        if (ImGui.MenuItem("Solid", null, PlayerManager.Instance.DeathBorder == DeathBorder.Solid))
+                        if (ImGui.MenuItem("Solid", null, PlayerManager.DeathBorder == DeathBorder.Solid))
                         {
-                            PlayerManager.Instance.DeathBorder = DeathBorder.Solid;
+                            PlayerManager.DeathBorder = DeathBorder.Solid;
                         }
                         ImGui.EndMenu();
                     }
                     ImGui.Separator();
                     if (ImGui.BeginMenu("Mask (Hitbox)"))
                     {
-                        if (ImGui.MenuItem("Only Player", null, PlayerManager.Instance.ShowMask == ShowMask.OnlyPlayer))
+                        if (ImGui.MenuItem("Only Player", null, PlayerManager.ShowMask == ShowMask.OnlyPlayer))
                         {
-                            PlayerManager.Instance.ShowMask = ShowMask.OnlyPlayer;
+                            PlayerManager.ShowMask = ShowMask.OnlyPlayer;
                         }
-                        if (ImGui.MenuItem("Only Mask", null, PlayerManager.Instance.ShowMask == ShowMask.OnlyMask))
+                        if (ImGui.MenuItem("Only Mask", null, PlayerManager.ShowMask == ShowMask.OnlyMask))
                         {
-                            PlayerManager.Instance.ShowMask = ShowMask.OnlyMask;
+                            PlayerManager.ShowMask = ShowMask.OnlyMask;
                         }
-                        if (ImGui.MenuItem("Player And Mask", null, PlayerManager.Instance.ShowMask == ShowMask.PlayerAndMask))
+                        if (ImGui.MenuItem("Player And Mask", null, PlayerManager.ShowMask == ShowMask.PlayerAndMask))
                         {
-                            PlayerManager.Instance.ShowMask = ShowMask.PlayerAndMask;
+                            PlayerManager.ShowMask = ShowMask.PlayerAndMask;
                         }
                         ImGui.EndMenu();
                     }
@@ -480,13 +477,13 @@ namespace ImJtool
                 ImGui.SetNextWindowSize(new Vector2(800, 608) * MapWindowScale, ImGuiCond.Once);
 
                 var flags = ImGuiWindowFlags.NoBackground | ImGuiWindowFlags.NoResize;
-                if (!Editor.Instance.MouseInTitle)
+                if (!Editor.MouseInTitle)
                     flags |= ImGuiWindowFlags.NoMove;
 
 
                 if (ImGui.Begin("Map Window", ref showMapWindow, flags))
                 {
-                    Editor.Instance.Update();
+                    Editor.Update();
 
                     // Draw map window
                     var windowPos = ImGui.GetWindowPos();
@@ -529,7 +526,7 @@ namespace ImJtool
                     {
                         if (ImGui.ImageButton(paletteIcons[type].ImGuiTexture, new Vector2(32, 32)))
                         {
-                            Editor.Instance.SetSelectType(type);
+                            Editor.SetSelectType(type);
                         }
                     }
 
@@ -648,7 +645,7 @@ namespace ImJtool
                 ImGui.Columns(2);
                 ImGui.Text("Search");
                 ImGui.SameLine();
-                var names = SkinManager.Instance.SkinNames;
+                var names = SkinManager.SkinNames;
                 if (ImGui.InputText("##SearchSkin", ref skinSearchString, 256))
                 {
                     skinSearchList.Clear();
@@ -664,10 +661,10 @@ namespace ImJtool
                 }
                 if (ImGui.BeginListBox("##Skins", new Vector2(200, 250)))
                 {
-                    if (SkinManager.Instance.PreviewSkin == null)
+                    if (SkinManager.PreviewSkin == null)
                     {
                         skinSelect = 0;
-                        SkinManager.Instance.PreviewSkin = new();
+                        SkinManager.PreviewSkin = new();
                     }
                     var count = skinSearchString.Length == 0 ? names.Count : skinSearchList.Count;
                     for (var i = 0; i < count; i++)
@@ -677,7 +674,7 @@ namespace ImJtool
                         if (ImGui.Selectable(name, skinSelect == idx))
                         {
                             skinSelect = idx;
-                            SkinManager.Instance.PreviewSkin = new(name);
+                            SkinManager.PreviewSkin = new(name);
                         }
                     }
                     ImGui.EndListBox();
@@ -690,7 +687,7 @@ namespace ImJtool
                 {
                     ImGui.SetCursorPos(new Vector2(startPos.X + xx, startPos.Y + yy));
 
-                    var spr = SkinManager.Instance.GetPreviewSpriteOfType(type);
+                    var spr = SkinManager.GetPreviewSpriteOfType(type);
                     var item = spr.GetItem(0);
                     var uv = item.GetUV();
                     ImGui.Image(item.ImGuiTexture, new Vector2(item.W, item.H), uv.Item1, uv.Item2);
@@ -723,7 +720,7 @@ namespace ImJtool
                 ImGui.Columns();
                 if (ImGui.Button("Apply"))
                 {
-                    SkinManager.Instance.ApplySkin(SkinManager.Instance.PreviewSkin.Name);
+                    SkinManager.ApplySkin(SkinManager.PreviewSkin.Name);
                     GeneratePaletteIcons();
 
                     showSkinWindow = false;
@@ -797,7 +794,7 @@ namespace ImJtool
 
                 if (ImGui.Button("OK"))
                 {
-                    Editor.Instance.Snap = snap;
+                    Editor.Snap = snap;
                     showSnapWindow = false;
                     ImGui.CloseCurrentPopup();
                 }
@@ -812,8 +809,8 @@ namespace ImJtool
             if (sender == "MapObjectManager" && text.Contains("Blood"))
                 return;
 
-            Instance.logText.Add((sender, text));
-            Instance.scrollToBottom = true;
+            logText.Add((sender, text));
+            scrollToBottom = true;
         }
 
         public static bool ContainsWord(string word, string otherword)

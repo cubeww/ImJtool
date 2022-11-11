@@ -24,18 +24,18 @@ namespace ImJtool
             SetSprite("player_idle");
             SetMask("player_mask");
 
-            PlayerManager.Instance.Player = this;
+            PlayerManager.Player = this;
         }
 
         public override void Step()
         {
-            if (PlayerManager.Instance.Dotkid)
+            if (PlayerManager.Dotkid)
             {
                 SetMask("dotkid");
             }
             else
             {
-                if (PlayerManager.Instance.Grav == 1)
+                if (PlayerManager.Grav == 1)
                 {
                     SetMask("player_mask");
                 }
@@ -45,8 +45,8 @@ namespace ImJtool
                 }
             }
 
-            var L = InputManager.Instance.IsKeyHold(Keys.Left);
-            var R = InputManager.Instance.IsKeyHold(Keys.Right);
+            var L = InputManager.IsKeyHold(Keys.Left);
+            var R = InputManager.IsKeyHold(Keys.Right);
 
             float h = 0;
             if (R) h = 1;
@@ -54,7 +54,7 @@ namespace ImJtool
 
             if (h != 0)
             {
-                PlayerManager.Instance.Face = h;
+                PlayerManager.Face = h;
                 SetSprite("player_running");
                 ImageSpeed = 0.5f;
             }
@@ -66,16 +66,16 @@ namespace ImJtool
             HSpeed = maxHspeed * h;
             if (!onPlatform)
             {
-                if (VSpeed * PlayerManager.Instance.Grav < -0.05f)
+                if (VSpeed * PlayerManager.Grav < -0.05f)
                 {
                     SetSprite("player_jump");
                 }
-                else if (VSpeed * PlayerManager.Instance.Grav > 0.05f)
+                else if (VSpeed * PlayerManager.Grav > 0.05f)
                 {
                     SetSprite("player_fall");
                 }
             }
-            if (!PlaceMeeting(X, Y + 4 * PlayerManager.Instance.Grav, typeof(Platform)))
+            if (!PlaceMeeting(X, Y + 4 * PlayerManager.Grav, typeof(Platform)))
             {
                 onPlatform = false;
             }
@@ -91,7 +91,7 @@ namespace ImJtool
 
             if (water || water2 || water3)
             {
-                VSpeed = MathF.Min(VSpeed * PlayerManager.Instance.Grav, 2.0f) * PlayerManager.Instance.Grav;
+                VSpeed = MathF.Min(VSpeed * PlayerManager.Grav, 2.0f) * PlayerManager.Grav;
 
                 if (!water2)
                 {
@@ -99,73 +99,73 @@ namespace ImJtool
                 }
             }
 
-            if (InputManager.Instance.IsKeyPress(Keys.Z))
+            if (InputManager.IsKeyPress(Keys.Z))
             {
-                if (MapObjectManager.Instance.GetCount(typeof(PlayerBullet)) < 4)
+                if (MapObjectManager.GetCount(typeof(PlayerBullet)) < 4)
                 {
                     var by = Y;
-                    if (PlayerManager.Instance.Dotkid)
+                    if (PlayerManager.Dotkid)
                     {
                         by = Y + 6;
                     }
-                    var b = MapObjectManager.Instance.CreateObject(X, by, typeof(PlayerBullet));
-                    b.HSpeed = PlayerManager.Instance.Face * 16;
+                    var b = MapObjectManager.CreateObject(X, by, typeof(PlayerBullet));
+                    b.HSpeed = PlayerManager.Face * 16;
                 }
             }
             // Jump press
-            if (InputManager.Instance.IsKeyPress(Keys.LeftShift) || InputManager.Instance.IsKeyPress(Keys.RightShift))
+            if (InputManager.IsKeyPress(Keys.LeftShift) || InputManager.IsKeyPress(Keys.RightShift))
             {
-                if (PlaceMeeting(X, Y + 1 * PlayerManager.Instance.Grav, typeof(Block)) || PlaceMeeting(X, Y + 1 * PlayerManager.Instance.Grav, typeof(Platform)) || onPlatform || water)
+                if (PlaceMeeting(X, Y + 1 * PlayerManager.Grav, typeof(Block)) || PlaceMeeting(X, Y + 1 * PlayerManager.Grav, typeof(Platform)) || onPlatform || water)
                 {
-                    VSpeed = -jump * PlayerManager.Instance.Grav;
+                    VSpeed = -jump * PlayerManager.Grav;
                     djump = true;
                 }
-                else if (djump || water2 || PlayerManager.Instance.Infjump)
+                else if (djump || water2 || PlayerManager.Infjump)
                 {
                     SetSprite("player_jump");
-                    VSpeed = -jump2 * PlayerManager.Instance.Grav;
+                    VSpeed = -jump2 * PlayerManager.Grav;
                     if (!water3)
                         djump = false;
                     else djump = true;
                 }
             }
             // Jump release
-            if (InputManager.Instance.IsKeyRelease(Keys.LeftShift) || InputManager.Instance.IsKeyRelease(Keys.RightShift))
+            if (InputManager.IsKeyRelease(Keys.LeftShift) || InputManager.IsKeyRelease(Keys.RightShift))
             {
-                if (VSpeed * PlayerManager.Instance.Grav < 0)
+                if (VSpeed * PlayerManager.Grav < 0)
                 {
                     VSpeed *= 0.45f;
                 }
             }
 
             // vine
-            var notOnBlock = !PlaceMeeting(X, Y + 1 * PlayerManager.Instance.Grav, typeof(Block));
+            var notOnBlock = !PlaceMeeting(X, Y + 1 * PlayerManager.Grav, typeof(Block));
             var onVineL = PlaceMeeting(X - 1, Y, typeof(WalljumpL)) && notOnBlock;
             var onVineR = PlaceMeeting(X + 1, Y, typeof(WalljumpR)) && notOnBlock;
             if (onVineL || onVineR)
             {
                 if (onVineL)
                 {
-                    PlayerManager.Instance.Face = 1;
+                    PlayerManager.Face = 1;
                 }
                 else
                 {
-                    PlayerManager.Instance.Face = -1;
+                    PlayerManager.Face = -1;
                 }
 
-                VSpeed = 2 * PlayerManager.Instance.Grav;
+                VSpeed = 2 * PlayerManager.Grav;
 
                 SetSprite("player_sliding");
                 ImageSpeed = 0.5f;
 
-                if ((onVineL && InputManager.Instance.IsKeyPress(Keys.Right)) || (onVineR &&
-                    InputManager.Instance.IsKeyPress(Keys.Right)))
+                if ((onVineL && InputManager.IsKeyPress(Keys.Right)) || (onVineR &&
+                    InputManager.IsKeyPress(Keys.Right)))
                 {
-                    if (InputManager.Instance.IsKeyHold(Keys.LeftShift) || InputManager.Instance.IsKeyHold(Keys.RightShift))
+                    if (InputManager.IsKeyHold(Keys.LeftShift) || InputManager.IsKeyHold(Keys.RightShift))
                     {
                         if (onVineR) HSpeed = -15;
                         else HSpeed = 15;
-                        VSpeed = -9 * PlayerManager.Instance.Grav;
+                        VSpeed = -9 * PlayerManager.Grav;
                         SetSprite("player_jump");
                     }
                     else
@@ -178,13 +178,13 @@ namespace ImJtool
             }
 
             // A / D adjust
-            if (PlaceMeeting(X, Y + PlayerManager.Instance.Grav, typeof(Block)))
+            if (PlaceMeeting(X, Y + PlayerManager.Grav, typeof(Block)))
             {
-                if (InputManager.Instance.IsKeyPress(Keys.A))
+                if (InputManager.IsKeyPress(Keys.A))
                 {
                     HSpeed = -1;
                 }
-                if (InputManager.Instance.IsKeyPress(Keys.D))
+                if (InputManager.IsKeyPress(Keys.D))
                 {
                     HSpeed = 1;
                 }
@@ -202,7 +202,7 @@ namespace ImJtool
 
                 if (PlaceMeeting(X + HSpeed, Y, typeof(Block)))
                 {
-                    if (PlayerManager.Instance.Grav == 1)
+                    if (PlayerManager.Grav == 1)
                     {
                         if (HSpeed <= 0) MoveContact(180, MathF.Abs(HSpeed), typeof(Block));
                         if (HSpeed > 0) MoveContact(0, MathF.Abs(HSpeed), typeof(Block));
@@ -216,7 +216,7 @@ namespace ImJtool
                 }
                 if (PlaceMeeting(X, Y + VSpeed, typeof(Block)))
                 {
-                    if (PlayerManager.Instance.Grav == 1)
+                    if (PlayerManager.Grav == 1)
                     {
                         if (VSpeed <= 0)
                         {
@@ -255,7 +255,7 @@ namespace ImJtool
             var pf = InstancePlace(X, Y, typeof(Platform));
             if (pf != null)
             {
-                if (PlayerManager.Instance.Grav == 1)
+                if (PlayerManager.Grav == 1)
                 {
                     if (Y - VSpeed / 2 <= pf.Y)
                     {
@@ -288,12 +288,12 @@ namespace ImJtool
             }
 
             // Gravity arrow
-            if (PlayerManager.Instance.Grav == 1 && PlaceMeeting(X, Y, typeof(GravityArrowUp)))
+            if (PlayerManager.Grav == 1 && PlaceMeeting(X, Y, typeof(GravityArrowUp)))
             {
                 FlipGrav();
             }
 
-            if (PlayerManager.Instance.Grav == -1 && PlaceMeeting(X, Y, typeof(GravityArrowDown)))
+            if (PlayerManager.Grav == -1 && PlaceMeeting(X, Y, typeof(GravityArrowDown)))
             {
                 FlipGrav();
             }
@@ -303,7 +303,7 @@ namespace ImJtool
             if (killer != null)
             {
                 killer.SetHighlight();
-                if (PlayerManager.Instance.DeathEnable)
+                if (PlayerManager.DeathEnable)
                 {
                     Kill();
                     return;
@@ -321,49 +321,49 @@ namespace ImJtool
         {
             for (int i = 0; i < 200; i++)
             {
-                MapObjectManager.Instance.CreateObject(X, Y, typeof(Blood));
+                MapObjectManager.CreateObject(X, Y, typeof(Blood));
             }
             Destroy();
         }
         public override void Draw()
         {
-            if (!PlayerManager.Instance.Dotkid)
+            if (!PlayerManager.Dotkid)
             {
-                if (PlayerManager.Instance.ShowMask == ShowMask.OnlyPlayer)
+                if (PlayerManager.ShowMask == ShowMask.OnlyPlayer)
                 {
-                    Sprite.Draw(ImageIndex, X, Y, PlayerManager.Instance.Face, PlayerManager.Instance.Grav, Rotation, Color);
+                    Sprite.Draw(ImageIndex, X, Y, PlayerManager.Face, PlayerManager.Grav, Rotation, Color);
                 }
-                else if (PlayerManager.Instance.ShowMask == ShowMask.OnlyMask)
+                else if (PlayerManager.ShowMask == ShowMask.OnlyMask)
                 {
                     MaskSprite.Draw(ImageIndex, X, Y, 1, 1, 0, Color);
                 }
                 else
                 {
                     var col = Color.White * 0.5f;
-                    Sprite.Draw(ImageIndex, X, Y, PlayerManager.Instance.Face, PlayerManager.Instance.Grav, Rotation, col);
+                    Sprite.Draw(ImageIndex, X, Y, PlayerManager.Face, PlayerManager.Grav, Rotation, col);
                     MaskSprite.Draw(ImageIndex, X, Y, 1, 1, 0, col);
                 }
             }
             else
             {
                 MaskSprite.Draw(ImageIndex, X, Y, 1, 1, 0, Color);
-                if (PlayerManager.Instance.DotkidOutline)
+                if (PlayerManager.DotkidOutline)
                 {
-                    ResourceManager.Instance.GetSprite("dotkid_outline").Draw(0, X, Y + 8, 1, 1, 0, Color.White);
+                    ResourceManager.GetSprite("dotkid_outline").Draw(0, X, Y + 8, 1, 1, 0, Color.White);
                 }
             }
         }
 
         public void FlipGrav()
         {
-            PlayerManager.Instance.Grav *= -1;
-            Gravity = 0.4f * PlayerManager.Instance.Grav;
+            PlayerManager.Grav *= -1;
+            Gravity = 0.4f * PlayerManager.Grav;
             djump = true;
             VSpeed = 0;
 
-            if (!PlayerManager.Instance.Dotkid)
+            if (!PlayerManager.Dotkid)
             {
-                if (PlayerManager.Instance.Grav == 1)
+                if (PlayerManager.Grav == 1)
                 {
                     SetMask("player_mask");
                 }
@@ -372,7 +372,7 @@ namespace ImJtool
                     SetMask("player_mask_flip");
                 }
             }
-            Y += 4 * PlayerManager.Instance.Grav;
+            Y += 4 * PlayerManager.Grav;
         }
     }
     public class Apple : Killer
@@ -455,13 +455,13 @@ namespace ImJtool
                     timer2 = 59;
                     ImageIndex = 1;
                     canSave = false;
-                    PlayerManager.Instance.Save();
+                    PlayerManager.Save();
                 }
             }
 
-            var press = InputManager.Instance.IsKeyPress(Keys.Z);
+            var press = InputManager.IsKeyPress(Keys.Z);
             var enter = PlaceMeeting(X, Y, typeof(Player));
-            if (PlayerManager.Instance.SaveType == SaveType.OnlyShoot)
+            if (PlayerManager.SaveType == SaveType.OnlyShoot)
             {
                 if (enter && press)
                 {
@@ -592,7 +592,7 @@ namespace ImJtool
 
             ImageIndex = (float)random.NextDouble() * 2f;
             ImageSpeed = 0;
-            Gravity = (0.1f + (float)random.NextDouble() * 0.2f) * PlayerManager.Instance.Grav;
+            Gravity = (0.1f + (float)random.NextDouble() * 0.2f) * PlayerManager.Grav;
 
             Direction = (float)random.NextDouble() * 360f;
             Speed = (float)random.NextDouble() * 6f;
@@ -756,7 +756,7 @@ namespace ImJtool
         {
             Depth = 0;
 
-            foreach (var o in MapObjectManager.Instance.Objects)
+            foreach (var o in MapObjectManager.Objects)
             {
                 if (o.GetType() == GetType() && o != this)
                 {
@@ -764,10 +764,10 @@ namespace ImJtool
                 }
 
             }
-            MapObjectManager.Instance.DestroyByType(typeof(Player));
-            MapObjectManager.Instance.DestroyByType(typeof(Blood));
-            MapObjectManager.Instance.CreateObject(X + 17, Y + 23, typeof(Player));
-            PlayerManager.Instance.Save();
+            MapObjectManager.DestroyByType(typeof(Player));
+            MapObjectManager.DestroyByType(typeof(Blood));
+            MapObjectManager.CreateObject(X + 17, Y + 23, typeof(Player));
+            PlayerManager.Save();
             Depth = 0;
         }
         public override void Step()
@@ -792,15 +792,15 @@ namespace ImJtool
         }
         public override void Step()
         {
-            HSpeed = SkinManager.Instance.CurrentSkin.HSpeed;
-            VSpeed = SkinManager.Instance.CurrentSkin.VSpeed;
+            HSpeed = SkinManager.CurrentSkin.HSpeed;
+            VSpeed = SkinManager.CurrentSkin.VSpeed;
         }
         public override void Draw()
         {
             var sb = Jtool.Instance.SpriteBatch;
             sb.End();
 
-            if (SkinManager.Instance.CurrentSkin.BgType == BgType.Tile)
+            if (SkinManager.CurrentSkin.BgType == BgType.Tile)
             {
                 sb.Begin(SpriteSortMode.Deferred, null, SamplerState.LinearWrap);
                 var item = Sprite.GetItem(0);
@@ -869,8 +869,8 @@ namespace ImJtool
         }
         public override void Draw()
         {
-            if (Editor.Instance.ShowGrid)
-                Jtool.Instance.SpriteBatch.Draw(Editor.Instance.GridTexture, new Rectangle(0, 0, 800, 608), Color.Black * 0.2f);
+            if (Editor.ShowGrid)
+                Jtool.Instance.SpriteBatch.Draw(Editor.GridTexture, new Rectangle(0, 0, 800, 608), Color.Black * 0.2f);
         }
     }
     public class BorderBlock : Block

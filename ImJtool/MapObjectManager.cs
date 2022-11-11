@@ -9,10 +9,9 @@ namespace ImJtool
     /// <summary>
     /// Manage objects in the map and provide some collision detection methods
     /// </summary>
-    public class MapObjectManager
+    public static class MapObjectManager
     {
-        public static MapObjectManager Instance => Jtool.Instance.MapObjectManager;
-        public MapObjectManager()
+        public static void Initialize()
         {
             // Generate a "subclass info list" to use if needed
             var subclassTypes = Assembly.GetAssembly(typeof(MapObject)).GetTypes().Where(t => t.IsSubclassOf(typeof(MapObject)));
@@ -26,18 +25,18 @@ namespace ImJtool
         /// List of all objects in the map.
         /// This is also the sum of objects in all object pools.
         /// </summary>
-        public List<MapObject> Objects { get; set; } = new();
+        public static List<MapObject> Objects { get; set; } = new();
 
         /// <summary>
         /// List of objects by type.
         /// It can be traversed on demand to improve the efficiency of collision detection, etc.
         /// </summary>
-        Dictionary<Type, List<MapObject>> objectPools = new();
+        static Dictionary<Type, List<MapObject>> objectPools = new();
 
         /// <summary>
         /// Call the step method of all map objects
         /// </summary>
-        public void DoStep()
+        public static void DoStep()
         {
             foreach (var obj in Objects.ToArray())
             {
@@ -54,7 +53,7 @@ namespace ImJtool
         /// <summary>
         /// Call the draw method of all map objects
         /// </summary>
-        public void DoDraw()
+        public static void DoDraw()
         {
             Objects = Objects.OrderBy(o => o.Depth).Reverse().ToList();
 
@@ -78,7 +77,7 @@ namespace ImJtool
         /// Add map object to their respective type pools. 
         /// It is convenient to perform collision detection methods.
         /// </summary>
-        public void AddToPool(MapObject obj)
+        public static void AddToPool(MapObject obj)
         {
             GetPool(obj.GetType()).Add(obj);
         }
@@ -86,7 +85,7 @@ namespace ImJtool
         /// Create an object with type name, and call the "Create" method of the object.
         /// It will also add the object to both "objects" and "objectPools[typename]".
         /// </summary>
-        public MapObject CreateObject(float x, float y, Type type)
+        public static MapObject CreateObject(float x, float y, Type type)
         {
             var obj = (MapObject)Activator.CreateInstance(type);
             obj.X = x;
@@ -100,7 +99,7 @@ namespace ImJtool
         /// <summary>
         /// Check if a point collides with an object of the specified type
         /// </summary>
-        public MapObject CollisionPoint(float x, float y, Type type = null)
+        public static MapObject CollisionPoint(float x, float y, Type type = null)
         {
             var pool = GetTypeObjectsWithChildren(type);
 
@@ -122,7 +121,7 @@ namespace ImJtool
         /// <summary>
         /// Checks if a point collides with an object of the specified type and returns a list of objects
         /// </summary>
-        public List<MapObject> CollisionPointList(float x, float y, Type type = null)
+        public static List<MapObject> CollisionPointList(float x, float y, Type type = null)
         {
             var list = new List<MapObject>();
 
@@ -145,7 +144,7 @@ namespace ImJtool
         /// <summary>
         /// Get all objects that a line collides with.
         /// </summary>
-        public List<MapObject> CollisionLineList(float x1, float y1, float x2, float y2, Type type = null)
+        public static List<MapObject> CollisionLineList(float x1, float y1, float x2, float y2, Type type = null)
         {
             var pool = GetTypeObjectsWithChildren(type);
 
@@ -277,7 +276,7 @@ namespace ImJtool
         /// <summary>
         /// Get all objects at a point coordinate
         /// </summary>
-        public List<MapObject> AtPosition(float x, float y, Type type = null)
+        public static List<MapObject> AtPosition(float x, float y, Type type = null)
         {
             var list = new List<MapObject>();
 
@@ -298,7 +297,7 @@ namespace ImJtool
         /// <summary>
         /// Marks all objects of the specified type as "Need Destroy".
         /// </summary>
-        public void DestroyByType(Type type)
+        public static void DestroyByType(Type type)
         {
             if (objectPools.ContainsKey(type))
             {
@@ -311,7 +310,7 @@ namespace ImJtool
         /// <summary>
         /// Gets the total number of objects of the specified type.
         /// </summary>
-        public int GetCount(Type type)
+        public static int GetCount(Type type)
         {
             if (objectPools.ContainsKey(type))
             {
@@ -323,7 +322,7 @@ namespace ImJtool
         /// Gets a pool of objects of the specified type. 
         /// If the type is null, an object pool containing all objects is returned.
         /// </summary>
-        public List<MapObject> GetPool(Type type)
+        public static List<MapObject> GetPool(Type type)
         {
             if (type == null)
             {
@@ -335,7 +334,7 @@ namespace ImJtool
             }
             return objectPools[type];
         }
-        public List<MapObject> GetTypeObjectsWithChildren(Type type)
+        public static List<MapObject> GetTypeObjectsWithChildren(Type type)
         {
             if (type == null)
             {

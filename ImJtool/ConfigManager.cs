@@ -10,21 +10,20 @@ using System.Text.Json.Serialization;
 
 namespace ImJtool
 {
-    public class ConfigManager
+    public static class ConfigManager
     {
-        public ConfigManager Instance => Jtool.Instance.ConfigManager;
-        public void Save()
+        public static void Save()
         {
             var cfg = new JsonObject();
-            cfg["skin"] = SkinManager.Instance.CurrentSkin.Name;
-            cfg["grid"] = Editor.Instance.GridSize;
-            cfg["snap"] = Editor.Instance.Snap;
-            cfg["coord"] = Gui.Instance.ShowMouseCoord;
+            cfg["skin"] = SkinManager.CurrentSkin.Name;
+            cfg["grid"] = Editor.GridSize;
+            cfg["snap"] = Editor.Snap;
+            cfg["coord"] = Gui.ShowMouseCoord;
 
             var str = JsonSerializer.Serialize(cfg);
             File.WriteAllText("config.json", str);
         }
-        public void Load()
+        public static void Load()
         {
             var str = File.ReadAllText("config.json");
             var cfg = JsonSerializer.Deserialize<JsonObject>(str);
@@ -45,10 +44,10 @@ namespace ImJtool
                     action(bool.Parse(cfg[key].ToString()));
             }
 
-            ParseString("skin", (string v) => SkinManager.Instance.ApplySkin(v));
-            ParseInt("grid", (int v) => Editor.Instance.GridSize = v);
-            ParseInt("snap", (int v) => Editor.Instance.Snap = v);
-            ParseBool("coord", (bool v) => Gui.Instance.ShowMouseCoord = v);
+            ParseString("skin", (string v) => SkinManager.ApplySkin(v));
+            ParseInt("grid", (int v) => Editor.GridSize = v);
+            ParseInt("snap", (int v) => Editor.Snap = v);
+            ParseBool("coord", (bool v) => Gui.ShowMouseCoord = v);
         }
     }
 }

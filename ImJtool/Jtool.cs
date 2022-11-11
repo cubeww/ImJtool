@@ -1,4 +1,5 @@
 ﻿using ImGuiNET;
+using Microsoft.VisualBasic.Devices;
 using Microsoft.Win32;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -34,16 +35,6 @@ namespace ImJtool
         /// </summary>
         public static Jtool Instance => lazy.Value;
 
-        public ResourceManager ResourceManager { get; private set; }
-        public MapObjectManager MapObjectManager { get; private set; }
-        public Gui Gui { get; private set; }
-        public Editor Editor { get; private set; }
-        public InputManager InputManager { get; private set; }
-        public PlayerManager PlayerManager { get; private set; }
-        public SkinManager SkinManager { get; private set; }
-        public MapManager MapManager { get; private set; }
-        public ConfigManager ConfigManager { get; private set; }
-
         public Jtool()
         {
             Graphics = new GraphicsDeviceManager(this);
@@ -76,15 +67,12 @@ namespace ImJtool
 
             MapRenderTarget = new RenderTarget2D(GraphicsDevice, 800, 608);
 
-            ResourceManager = new ResourceManager();
-            MapObjectManager = new MapObjectManager();
-            InputManager = new InputManager();
-            PlayerManager = new PlayerManager();
-            Gui = new Gui();
-            Editor = new Editor();
-            SkinManager = new SkinManager();
-            MapManager = new MapManager();
-            ConfigManager = new ConfigManager();
+            MapObjectManager.Initialize();
+
+            InputManager.Initialize();
+            InputManager.ClearPressAndRelease();
+
+            MapManager.Initialize();
 
             base.Initialize();
         }
@@ -113,8 +101,8 @@ namespace ImJtool
             Editor.GridTexture = new RenderTarget2D(GraphicsDevice, 800, 608);
             Editor.RedrawGrid();
 
-            MapObjectManager.Instance.CreateObject(0, 0, typeof(Bg));
-            MapObjectManager.Instance.CreateObject(0, 0, typeof(Grid));
+            MapObjectManager.CreateObject(0, 0, typeof(Bg));
+            MapObjectManager.CreateObject(0, 0, typeof(Grid));
             MapManager.NewMap();
 
             // Set as default program for jmap
@@ -145,7 +133,6 @@ namespace ImJtool
         /// </summary>
         protected override void Update(GameTime gameTime)
         {
-            InputManager.Update();
             PlayerManager.Update();
 
             MapObjectManager.DoStep();
@@ -163,10 +150,12 @@ namespace ImJtool
             }
             
             SpriteBatch.End();
-
+            
             GraphicsDevice.SetRenderTarget(null);
 
             base.Update(gameTime);
+
+            InputManager.ClearPressAndRelease();
         }
         protected override void Draw(GameTime gameTime)
         {
@@ -178,8 +167,6 @@ namespace ImJtool
 
             GraphicsDevice.Clear(Gui.BgColor);
             ImGuiRender.AfterLayout();
-
-            InputManager.AfterUpdate();
 
             base.Draw(gameTime);
         }

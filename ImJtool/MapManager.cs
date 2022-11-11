@@ -13,17 +13,16 @@ namespace ImJtool
     /// <summary>
     /// Manage map switching, saving, exporting, etc.
     /// </summary>
-    public class MapManager
+    public static class MapManager
     {
-        public static MapManager Instance => Jtool.Instance.MapManager;
-        public string MapName { get; set; } = "Untitled.jmap";
-        bool modified = false;
+        public static string MapName { get; set; } = "Untitled.jmap";
+        static bool modified = false;
 
         /// <summary>
         /// Whether the map has been modified.
         /// Modifying this property will automatically update the window title.
         /// </summary>
-        public bool Modified
+        public static bool Modified
         {
             get => modified;
             set
@@ -32,7 +31,7 @@ namespace ImJtool
                 UpdateWindowTitle();
             }
         }
-        public string CurrentMapFile { get; set; } = null;
+        public static string CurrentMapFile { get; set; } = null;
         public static Dictionary<Type, int> TypeToJMap { set; get; } = new()
         {
             [typeof(Block)] = 1,
@@ -96,14 +95,14 @@ namespace ImJtool
             return result;
         }
 
-        public MapManager()
+        public static void Initialize()
         {
             JMapToType = MakeReverse(TypeToJMap);
             RMJToJMap = MakeReverse(TypeToRMJ);
 
             UpdateWindowTitle();
         }
-        public void UpdateWindowTitle()
+        public static void UpdateWindowTitle()
         {
             Jtool.Instance.Window.Title = Jtool.Caption + " - " + MapName;
 
@@ -113,7 +112,7 @@ namespace ImJtool
         /// <summary>
         /// Load jtool map file ("|" split, base32 store numbers)
         /// </summary>
-        public void LoadJMap(string filename)
+        public static void LoadJMap(string filename)
         {
             double Base32ToDouble(string str)
             {
@@ -142,7 +141,7 @@ namespace ImJtool
                     switch (key)
                     {
                         case "inf":
-                            PlayerManager.Instance.Infjump = int.Parse(value) switch
+                            PlayerManager.Infjump = int.Parse(value) switch
                             {
                                 0 => false,
                                 1 => true,
@@ -150,7 +149,7 @@ namespace ImJtool
                             };
                             break;
                         case "dot":
-                            PlayerManager.Instance.Dotkid = int.Parse(value) switch
+                            PlayerManager.Dotkid = int.Parse(value) switch
                             {
                                 0 => false,
                                 1 => true,
@@ -158,22 +157,22 @@ namespace ImJtool
                             };
                             break;
                         case "sav":
-                            PlayerManager.Instance.SaveType = (SaveType)int.Parse(value);
+                            PlayerManager.SaveType = (SaveType)int.Parse(value);
                             break;
                         case "bor":
-                            PlayerManager.Instance.DeathBorder = (DeathBorder)int.Parse(value);
+                            PlayerManager.DeathBorder = (DeathBorder)int.Parse(value);
                             break;
                         case "px":
-                            PlayerManager.Instance.CurrentSave.X = (float)Base32ToDouble(value);
+                            PlayerManager.CurrentSave.X = (float)Base32ToDouble(value);
                             break;
                         case "py":
-                            PlayerManager.Instance.CurrentSave.Y = (float)Base32ToDouble(value);
+                            PlayerManager.CurrentSave.Y = (float)Base32ToDouble(value);
                             break;
                         case "ps":
-                            PlayerManager.Instance.Face = int.Parse(value);
+                            PlayerManager.Face = int.Parse(value);
                             break;
                         case "pg":
-                            PlayerManager.Instance.Grav = int.Parse(value);
+                            PlayerManager.Grav = int.Parse(value);
                             break;
                         case "objects":
                             ClearMap();
@@ -189,7 +188,7 @@ namespace ImJtool
                                 {
                                     var type = JMapToType[(int)Base32ToDouble(value.Substring(i, 1))];
                                     var xx = (float)Base32ToDouble(value.Substring(i + 1, 2));
-                                    MapObjectManager.Instance.CreateObject(xx - 128, yy - 128, type);
+                                    MapObjectManager.CreateObject(xx - 128, yy - 128, type);
                                     objnum++;
                                 }
                                 i += 3;
@@ -198,7 +197,7 @@ namespace ImJtool
                     }
                 }
             }
-            PlayerManager.Instance.Load();
+            PlayerManager.Load();
             Modified = false;
             CurrentMapFile = filename;
             Gui.Log("Map Manager", $"JMap loaded. File: {filename}, {objnum} objects");
@@ -206,7 +205,7 @@ namespace ImJtool
         /// <summary>
         /// Save jtool map file ("|" split, base32 store numbers)
         /// </summary>
-        public void SaveJMap(string filename)
+        public static void SaveJMap(string filename)
         {
             // Shit conversion...
             string IntToBase32(long number)
@@ -236,7 +235,7 @@ namespace ImJtool
             };
 
             var mapObjectsList = new List<(int, int, int)>();
-            foreach (var i in MapObjectManager.Instance.Objects)
+            foreach (var i in MapObjectManager.Objects)
             {
                 if (i.IsInPalette)
                 {
@@ -260,22 +259,22 @@ namespace ImJtool
                 obj += PadStringLeft(IntToBase32(i.Item1 + 128), 2, "0");
             }
             string str = string.Format("jtool|1.3.0|inf:{0}|dot:{1}|sav:{2}|bor:{3}|px:{4}|py:{5}|ps:{6}|pg:{7}|objects:{8}",
-                PlayerManager.Instance.Infjump switch
+                PlayerManager.Infjump switch
                 {
                     true => 1,
                     false => 0,
                 },
-                PlayerManager.Instance.Dotkid switch
+                PlayerManager.Dotkid switch
                 {
                     true => 1,
                     false => 0,
                 },
-                (int)PlayerManager.Instance.SaveType,
-                (int)PlayerManager.Instance.DeathBorder,
-                PadStringLeft(DoubleToBase32(PlayerManager.Instance.CurrentSave.X), 13, "0"),
-                PadStringLeft(DoubleToBase32(PlayerManager.Instance.CurrentSave.Y), 13, "0"),
-                (int)PlayerManager.Instance.Face,
-                (int)PlayerManager.Instance.Grav,
+                (int)PlayerManager.SaveType,
+                (int)PlayerManager.DeathBorder,
+                PadStringLeft(DoubleToBase32(PlayerManager.CurrentSave.X), 13, "0"),
+                PadStringLeft(DoubleToBase32(PlayerManager.CurrentSave.Y), 13, "0"),
+                (int)PlayerManager.Face,
+                (int)PlayerManager.Grav,
                 obj);
             File.WriteAllText(filename, str);
             Modified = false;
@@ -283,23 +282,23 @@ namespace ImJtool
             Gui.Log("Map Manager", $"JMap saved. File: {filename}, {mapObjectsList.Count} objects");
         }
 
-        public void ClearMap()
+        public static void ClearMap()
         {
-            Editor.Instance.ClearUndo();
-            foreach (var o in MapObjectManager.Instance.Objects)
+            Editor.ClearUndo();
+            foreach (var o in MapObjectManager.Objects)
             {
                 if (o.IsInPalette)
                     o.Destroy();
             }
         }
-        public void SaveMap()
+        public static void SaveMap()
         {
             if (CurrentMapFile != null)
                 SaveJMap(CurrentMapFile);
             else SaveMapAs();
         }
 
-        public void SaveMapAs()
+        public static void SaveMapAs()
         {
             var d = new SaveFileDialog();
             d.Filter = "jtool map file|*.jmap";
@@ -309,18 +308,18 @@ namespace ImJtool
             }
         }
 
-        public void NewMap()
+        public static void NewMap()
         {
             ClearMap();
 
             // Create default objects
-            MapObjectManager.Instance.CreateObject(352, 416, typeof(Block));
-            MapObjectManager.Instance.CreateObject(352 + 32, 416, typeof(Block));
-            MapObjectManager.Instance.CreateObject(352 + 64, 416, typeof(Block));
-            MapObjectManager.Instance.CreateObject(384, 384, typeof(PlayerStart));
+            MapObjectManager.CreateObject(352, 416, typeof(Block));
+            MapObjectManager.CreateObject(352 + 32, 416, typeof(Block));
+            MapObjectManager.CreateObject(352 + 64, 416, typeof(Block));
+            MapObjectManager.CreateObject(384, 384, typeof(PlayerStart));
         }
 
-        public void OpenMap()
+        public static void OpenMap()
         {
             var d = new OpenFileDialog();
             d.Filter = "jtool map file|*.jmap";

@@ -213,11 +213,11 @@ namespace ImJtool
         public static Dictionary<Type, List<Type>> ChildTypes { get; set; } = new();
         public void SetSprite(string spriteName)
         {
-            Sprite = ResourceManager.Instance.GetSprite(spriteName);
+            Sprite = ResourceManager.GetSprite(spriteName);
         }
         public void SetMask(string spriteName)
         {
-            MaskSprite = ResourceManager.Instance.GetSprite(spriteName);
+            MaskSprite = ResourceManager.GetSprite(spriteName);
         }
 
         /// <summary>
@@ -231,7 +231,7 @@ namespace ImJtool
             }
             else if (SpriteNames.ContainsKey(GetType()))
             {
-                Sprite = ResourceManager.Instance.GetSprite(SpriteNames[GetType()]);
+                Sprite = ResourceManager.GetSprite(SpriteNames[GetType()]);
             }
 
             MaskSprite = Sprite;
@@ -297,7 +297,7 @@ namespace ImJtool
         {
             MapObject result = null;
 
-            var pool = MapObjectManager.Instance.GetTypeObjectsWithChildren(type);
+            var pool = MapObjectManager.GetTypeObjectsWithChildren(type);
             if (pool.Count == 0)
                 return result;
 
@@ -520,7 +520,7 @@ namespace ImJtool
         }
         public void ApplySkin()
         {
-            var skin = SkinManager.Instance.GetCurrentObjectOfType(GetType());
+            var skin = SkinManager.GetCurrentObjectOfType(GetType());
             if (skin != null)
             {
                 Sprite = skin.Sprite;
@@ -528,7 +528,7 @@ namespace ImJtool
             }
             else
             {
-                Sprite = ResourceManager.Instance.GetSprite(SpriteNames[GetType()]);
+                Sprite = ResourceManager.GetSprite(SpriteNames[GetType()]);
             }
         }
     }

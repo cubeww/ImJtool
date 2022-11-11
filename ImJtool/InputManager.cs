@@ -7,66 +7,54 @@ namespace ImJtool
     /// <summary>
     /// Check keyboard input.
     /// </summary>
-    public class InputManager
+    public static class InputManager
     {
-        public static InputManager Instance => Jtool.Instance.InputManager;
-
-        KeyboardState state;
-        KeyboardState lastState;
-
-        Keys[] keys;
-        bool[] keyPress;
-        bool[] keyRelease;
-
-        public InputManager()
+        static bool[] KeyPress { get; set; }
+        static bool[] KeyHold { get; set; }
+        static bool[] KeyRelease { get; set; }
+        public static void Initialize()
         {
-            keys = (Keys[])Enum.GetValues(typeof(Keys));
+            KeyPress = new bool[256];
+            KeyHold = new bool[256];
+            KeyRelease = new bool[256];
 
-            state = Keyboard.GetState();
-            lastState = state;
-        }
-
-        public void Update()
-        {
-            state = Keyboard.GetState();
-        }
-
-        public void AfterUpdate()
-        {
-            lastState = state;
-        }
-
-        public void ClearPressAndRelease()
-        {
-            for (int i = 0; i < keys.Length; i++)
+            Jtool.Instance.Window.KeyDown += (s, e) =>
             {
-                keyPress[i] = false;
-                keyRelease[i] = false;
+                if (!KeyHold[(int)e.Key])
+                {
+                    KeyPress[(int)e.Key] = true;
+                    KeyHold[(int)e.Key] = true;
+                }
+
+            };
+
+            Jtool.Instance.Window.KeyUp += (s, e) =>
+            {
+                KeyRelease[(int)e.Key] = true;
+                KeyHold[(int)e.Key] = false;
+            };
+        }
+
+        public static void ClearPressAndRelease()
+        {
+            for (int i = 0; i < KeyPress.Length; i++)
+            {
+                KeyPress[i] = false;
+                KeyRelease[i] = false;
             }
         }
 
-        public bool IsKeyPress(Keys key)
+        public static bool IsKeyPress(Keys key)
         {
-            if( state.IsKeyDown(key) && lastState.IsKeyUp(key))
-            {
-                Debug.WriteLine($"Press {key}");
-                return true;
-            }
-
-            return false;
+            return KeyPress[(int)key];
         }
-        public bool IsKeyHold(Keys key)
+        public static bool IsKeyHold(Keys key)
         {
-            return state.IsKeyDown(key);
+            return KeyHold[(int)key];
         }
-        public bool IsKeyRelease(Keys key)
+        public static bool IsKeyRelease(Keys key)
         {
-            if( state.IsKeyUp(key) && lastState.IsKeyDown(key))
-            {
-                Debug.WriteLine($"Release {key}");
-                return true;
-            }
-            return false;
+            return KeyRelease[(int)key];
         }
     }
 }
