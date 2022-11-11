@@ -1,5 +1,6 @@
 ﻿using Microsoft.Xna.Framework.Input;
 using System;
+using System.Diagnostics;
 
 namespace ImJtool
 {
@@ -14,10 +15,13 @@ namespace ImJtool
         KeyboardState lastState;
 
         Keys[] keys;
+        bool[] keyPress;
+        bool[] keyRelease;
 
         public InputManager()
         {
             keys = (Keys[])Enum.GetValues(typeof(Keys));
+
             state = Keyboard.GetState();
             lastState = state;
         }
@@ -32,9 +36,24 @@ namespace ImJtool
             lastState = state;
         }
 
+        public void ClearPressAndRelease()
+        {
+            for (int i = 0; i < keys.Length; i++)
+            {
+                keyPress[i] = false;
+                keyRelease[i] = false;
+            }
+        }
+
         public bool IsKeyPress(Keys key)
         {
-            return state.IsKeyDown(key) && lastState.IsKeyUp(key);
+            if( state.IsKeyDown(key) && lastState.IsKeyUp(key))
+            {
+                Debug.WriteLine($"Press {key}");
+                return true;
+            }
+
+            return false;
         }
         public bool IsKeyHold(Keys key)
         {
@@ -42,7 +61,12 @@ namespace ImJtool
         }
         public bool IsKeyRelease(Keys key)
         {
-            return state.IsKeyUp(key) && lastState.IsKeyDown(key);
+            if( state.IsKeyUp(key) && lastState.IsKeyDown(key))
+            {
+                Debug.WriteLine($"Release {key}");
+                return true;
+            }
+            return false;
         }
     }
 }

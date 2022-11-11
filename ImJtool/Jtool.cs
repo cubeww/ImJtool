@@ -3,6 +3,7 @@ using Microsoft.Win32;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -41,6 +42,7 @@ namespace ImJtool
         public PlayerManager PlayerManager { get; private set; }
         public SkinManager SkinManager { get; private set; }
         public MapManager MapManager { get; private set; }
+        public ConfigManager ConfigManager { get; private set; }
 
         public Jtool()
         {
@@ -82,6 +84,7 @@ namespace ImJtool
             Editor = new Editor();
             SkinManager = new SkinManager();
             MapManager = new MapManager();
+            ConfigManager = new ConfigManager();
 
             base.Initialize();
         }
@@ -103,14 +106,16 @@ namespace ImJtool
             ResourceManager.LoadTextures();
             SkinManager.LoadConfig();
 
-            Gui.GeneratePaletteIcons();
+            ConfigManager.Load();
 
-            // Create default objects
-            MapObjectManager.CreateObject(352, 416, typeof(Block));
-            MapObjectManager.CreateObject(352 + 32, 416, typeof(Block));
-            MapObjectManager.CreateObject(352 + 64, 416, typeof(Block));
-            MapObjectManager.CreateObject(384, 384, typeof(PlayerStart));
-            MapObjectManager.CreateObject(0, 0, typeof(Bg));
+            Gui.GeneratePaletteIcons();
+            Gui.SetTheme("Dark");
+            Editor.GridTexture = new RenderTarget2D(GraphicsDevice, 800, 608);
+            Editor.RedrawGrid();
+
+            MapObjectManager.Instance.CreateObject(0, 0, typeof(Bg));
+            MapObjectManager.Instance.CreateObject(0, 0, typeof(Grid));
+            MapManager.NewMap();
 
             // Set as default program for jmap
             if (IsAdministrator())
@@ -149,11 +154,14 @@ namespace ImJtool
             GraphicsDevice.Clear(Color.White);
 
             SpriteBatch.Begin();
+
             MapObjectManager.DoDraw();
+
             if (Editor.NeedDrawPreview)
             {
                 Editor.PreviewSprite.Draw(0, Editor.PreviewPosition.X, Editor.PreviewPosition.Y, 1, 1, 0, Color.White * 0.5f);
             }
+            
             SpriteBatch.End();
 
             GraphicsDevice.SetRenderTarget(null);
@@ -168,12 +176,18 @@ namespace ImJtool
             Gui.Update();
             ImGui.PopFont();
 
-            GraphicsDevice.Clear(Color.Chocolate);
+            GraphicsDevice.Clear(Gui.BgColor);
             ImGuiRender.AfterLayout();
 
             InputManager.AfterUpdate();
 
             base.Draw(gameTime);
+        }
+
+        protected override void OnExiting(object sender, EventArgs args)
+        {
+            ConfigManager.Save();
+            base.OnExiting(sender, args);
         }
     }
 }

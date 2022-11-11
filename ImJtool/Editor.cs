@@ -1,5 +1,6 @@
 ﻿using ImGuiNET;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using System;
 using System.Collections.Generic;
@@ -15,7 +16,10 @@ namespace ImJtool
         public static Editor Instance => Jtool.Instance.Editor;
         public bool MouseInTitle { get; set; }
         public Type SelectType { get; set; } = typeof(Block);
-        public Vector2 Snap { get; private set; } = new(32, 32);
+        public int Snap { get; set; } = 32;
+        public bool ShowGrid { get; set; } = true;
+        public RenderTarget2D GridTexture { get; set; }
+        public int GridSize { get; set; } = 32;
 
         MapObject handedObject;
         Vector2 handedOldPos;
@@ -31,9 +35,34 @@ namespace ImJtool
         Stack<UndoEvent> undoStack = new();
         Stack<UndoEvent> redoStack = new();
         UndoEvent curEvent;
+        public void RedrawGrid()
+        {
+            var gd = Jtool.Instance.GraphicsDevice;
+            var sb = Jtool.Instance.SpriteBatch;
+
+            var oldtarget = gd.GetRenderTargets();
+            var tex = ResourceManager.Instance.GetTexture("white_pixel");
+
+            var col = Color.White;
+            gd.SetRenderTargets(GridTexture);
+            gd.Clear(Color.Transparent);
+
+            sb.Begin();
+            for (int xx = 0; xx < 800; xx += GridSize)
+            {
+                sb.Draw(tex, new Rectangle(xx, 0, 1, 608), col);
+            }
+            for (int yy = 0; yy < 608; yy+=GridSize)
+            {
+                sb.Draw(tex, new Rectangle(0, yy, 800, 1), col);
+            }
+            sb.End();
+
+            gd.SetRenderTargets(oldtarget);
+        }
         public void Update()
         {
-            var mousePos = ImGui.GetMousePos(); // Mouse position IN WINDOW
+            var mousePos = ImGui.GetMousePos(); // Mouse position in window
             var windowPos = ImGui.GetWindowPos(); // Map window position
             var windowSize = ImGui.GetWindowSize();
             var contentStartPos = windowPos + new Vector2(0, Gui.TitleBarHeight);
@@ -54,7 +83,7 @@ namespace ImJtool
             var dragHold = ks.IsKeyDown(Keys.Space);
             var pickerHold = ks.IsKeyDown(Keys.LeftControl);
 
-            var snappedPos = new Vector2(MathF.Floor(mouseInPos.X / Snap.X) * Snap.X, MathF.Floor(mouseInPos.Y / Snap.Y) * Snap.Y);
+            var snappedPos = new Vector2(MathF.Floor(mouseInPos.X / Snap) * Snap, MathF.Floor(mouseInPos.Y / Snap) * Snap);
             var focused = ImGui.IsWindowFocused();
 
             ImGui.SetMouseCursor(ImGuiMouseCursor.Arrow);
@@ -123,8 +152,8 @@ namespace ImJtool
                                 for (var xx = xmin; xx <= xmax; xx++)
                                 {
                                     var yy = k * xx + b;
-                                    var xxn = MathF.Floor(xx / Snap.X) * Snap.X;
-                                    var yyn = MathF.Floor(yy / Snap.Y) * Snap.Y;
+                                    var xxn = MathF.Floor(xx / Snap) * Snap;
+                                    var yyn = MathF.Floor(yy / Snap) * Snap;
                                     FinishCreateObject(xxn, yyn);
                                 }
                             }
@@ -140,8 +169,8 @@ namespace ImJtool
                                 for (var yy = ymin; yy <= ymax; yy++)
                                 {
                                     var xx = k * yy + b;
-                                    var xxn = MathF.Floor(xx / Snap.X) * Snap.X;
-                                    var yyn = MathF.Floor(yy / Snap.Y) * Snap.Y;
+                                    var xxn = MathF.Floor(xx / Snap) * Snap;
+                                    var yyn = MathF.Floor(yy / Snap) * Snap;
                                     FinishCreateObject(xxn, yyn);
                                 }
                             }
@@ -331,6 +360,7 @@ namespace ImJtool
                             break;
                     }
                 }
+                Gui.Log("Editor", $"Redo event \"{lastEvent.type}\", contains {lastEvent.events.Count} sub events");
             }
         }
 

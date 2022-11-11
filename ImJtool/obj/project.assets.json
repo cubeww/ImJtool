@@ -492,22 +492,25 @@
   },
   "packageFolders": {
     "C:\\Users\\h7613\\.nuget\\packages\\": {},
+    "C:\\Users\\h7613\\AppData\\Roaming\\Godot\\mono\\GodotNuGetFallbackFolder": {},
     "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\h7613\\Documents\\Projects\\CSharp\\ImJtool\\ImJtool\\ImJtool.csproj",
+      "projectUniqueName": "D:\\Projects\\CSharp\\ImJtool\\ImJtool\\ImJtool.csproj",
       "projectName": "ImJtool",
-      "projectPath": "C:\\Users\\h7613\\Documents\\Projects\\CSharp\\ImJtool\\ImJtool\\ImJtool.csproj",
+      "projectPath": "D:\\Projects\\CSharp\\ImJtool\\ImJtool\\ImJtool.csproj",
       "packagesPath": "C:\\Users\\h7613\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\h7613\\Documents\\Projects\\CSharp\\ImJtool\\ImJtool\\obj\\",
+      "outputPath": "D:\\Projects\\CSharp\\ImJtool\\ImJtool\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
+        "C:\\Users\\h7613\\AppData\\Roaming\\Godot\\mono\\GodotNuGetFallbackFolder",
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
       ],
       "configFilePaths": [
         "C:\\Users\\h7613\\AppData\\Roaming\\NuGet\\NuGet.Config",
+        "C:\\Users\\h7613\\AppData\\Roaming\\NuGet\\config\\Godot.Offline.Config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
       ],

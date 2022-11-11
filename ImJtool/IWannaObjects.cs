@@ -867,8 +867,10 @@ namespace ImJtool
         {
             Depth = 99;
         }
-        public override void Step()
+        public override void Draw()
         {
+            if (Editor.Instance.ShowGrid)
+                Jtool.Instance.SpriteBatch.Draw(Editor.Instance.GridTexture, new Rectangle(0, 0, 800, 608), Color.Black * 0.2f);
         }
     }
     public class BorderBlock : Block

@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using static System.Net.WebRequestMethods;
+using Vector4 = System.Numerics.Vector4;
 using Vector2 = System.Numerics.Vector2;
 using Microsoft.Xna.Framework.Input;
 using System.Reflection;
@@ -26,15 +27,20 @@ namespace ImJtool
         bool showMapWindow = true;
         bool showSnapWindow = false;
         bool showShiftWindow = false;
-        bool showGrid = false;
-        bool showGridWindow = false;
-        bool showMouseCoord = false;
         bool showSkinWindow = false;
         bool showPaletteWindow = true;
-        bool showLogWindow = true;
+        bool showLogWindow = false;
         bool showAnalysisWindow = false;
         bool showAboutWindow = false;
-        bool showConfirmOpenMap = false;
+
+        bool showConfirmWindow = false;
+        string confirmText = "";
+        Action confirmAction = null;
+
+        string currentTheme;
+
+
+        int snap = 32;
 
         /// <summary>
         /// Due to some limitations of ImGui.Image, 
@@ -42,6 +48,7 @@ namespace ImJtool
         /// </summary>
         Dictionary<Type, SpriteItem> paletteIcons = new();
 
+        public bool ShowMouseCoord { get; set; } = false;
         List<(string, string)> logText = new();
         bool scrollToBottom = true;
 
@@ -57,6 +64,7 @@ namespace ImJtool
         public static float TitleBarHeight => ImGui.GetFontSize() + ImGui.GetStyle().FramePadding.Y * 2;
 
         public IntPtr MapTexture { get; set; }
+        uint MakeUIntColor(byte r, byte g, byte b, byte a) { uint ret = a; ret <<= 8; ret += b; ret <<= 8; ret += g; ret <<= 8; ret += r; return ret; }
         /// <summary>
         /// Because the objects sprites of the palette need to have a fixed size, 
         /// we need to generate textures for them separately.
@@ -81,7 +89,129 @@ namespace ImJtool
                 paletteIcons[type] = new SpriteItem(rt, 0, 0, 32, 32);
             }
         }
+        public Color BgColor = Color.Black;
+        public void SetTheme(string name)
+        {
+            currentTheme = name;
+            var colors = ImGui.GetStyle().Colors;
 
+            switch (name)
+            {
+                case "Dark":
+                    BgColor = new Color(30, 30, 30);
+                    colors[(int)ImGuiCol.Text] = new Vector4(0.82f, 0.82f, 0.82f, 1.00f);
+                    colors[(int)ImGuiCol.TextDisabled] = new Vector4(0.60f, 0.60f, 0.60f, 1.00f);
+                    colors[(int)ImGuiCol.WindowBg] = new Vector4(0.13f, 0.14f, 0.16f, 1.00f);
+                    colors[(int)ImGuiCol.ChildBg] = new Vector4(0.17f, 0.18f, 0.20f, 1.00f);
+                    colors[(int)ImGuiCol.PopupBg] = new Vector4(0.22f, 0.24f, 0.25f, 1.00f);
+                    colors[(int)ImGuiCol.Border] = new Vector4(0.16f, 0.17f, 0.18f, 1.00f);
+                    colors[(int)ImGuiCol.BorderShadow] = new Vector4(0.16f, 0.17f, 0.18f, 1.00f);
+                    colors[(int)ImGuiCol.FrameBg] = new Vector4(0.14f, 0.15f, 0.16f, 1.00f);
+                    colors[(int)ImGuiCol.FrameBgHovered] = new Vector4(0.84f, 0.34f, 0.17f, 1.00f);
+                    colors[(int)ImGuiCol.FrameBgActive] = new Vector4(0.59f, 0.24f, 0.12f, 1.00f);
+                    colors[(int)ImGuiCol.TitleBg] = new Vector4(0.13f, 0.14f, 0.16f, 1.00f);
+                    colors[(int)ImGuiCol.TitleBgActive] = new Vector4(0.13f, 0.14f, 0.16f, 1.00f);
+                    colors[(int)ImGuiCol.TitleBgCollapsed] = new Vector4(0.13f, 0.14f, 0.16f, 1.00f);
+                    colors[(int)ImGuiCol.MenuBarBg] = new Vector4(0.13f, 0.14f, 0.16f, 1.00f);
+                    colors[(int)ImGuiCol.ScrollbarBg] = new Vector4(0.13f, 0.14f, 0.16f, 1.00f);
+                    colors[(int)ImGuiCol.ScrollbarGrab] = new Vector4(0.51f, 0.51f, 0.51f, 1.00f);
+                    colors[(int)ImGuiCol.ScrollbarGrabHovered] = new Vector4(0.75f, 0.30f, 0.15f, 1.00f);
+                    colors[(int)ImGuiCol.ScrollbarGrabActive] = new Vector4(0.51f, 0.51f, 0.51f, 1.00f);
+                    colors[(int)ImGuiCol.CheckMark] = new Vector4(0.90f, 0.90f, 0.90f, 0.50f);
+                    colors[(int)ImGuiCol.SliderGrab] = new Vector4(1.00f, 1.00f, 1.00f, 0.30f);
+                    colors[(int)ImGuiCol.SliderGrabActive] = new Vector4(0.51f, 0.51f, 0.51f, 1.00f);
+                    colors[(int)ImGuiCol.Button] = new Vector4(0.19f, 0.20f, 0.22f, 1.00f);
+                    colors[(int)ImGuiCol.ButtonHovered] = new Vector4(0.84f, 0.34f, 0.17f, 1.00f);
+                    colors[(int)ImGuiCol.ButtonActive] = new Vector4(0.59f, 0.24f, 0.12f, 1.00f);
+                    colors[(int)ImGuiCol.Header] = new Vector4(0.22f, 0.23f, 0.25f, 1.00f);
+                    colors[(int)ImGuiCol.HeaderHovered] = new Vector4(0.84f, 0.34f, 0.17f, 1.00f);
+                    colors[(int)ImGuiCol.HeaderActive] = new Vector4(0.59f, 0.24f, 0.12f, 1.00f);
+                    colors[(int)ImGuiCol.Separator] = new Vector4(0.17f, 0.18f, 0.20f, 1.00f);
+                    colors[(int)ImGuiCol.SeparatorHovered] = new Vector4(0.75f, 0.30f, 0.15f, 1.00f);
+                    colors[(int)ImGuiCol.SeparatorActive] = new Vector4(0.59f, 0.24f, 0.12f, 1.00f);
+                    colors[(int)ImGuiCol.ResizeGrip] = new Vector4(0.84f, 0.34f, 0.17f, 0.14f);
+                    colors[(int)ImGuiCol.ResizeGripHovered] = new Vector4(0.84f, 0.34f, 0.17f, 1.00f);
+                    colors[(int)ImGuiCol.ResizeGripActive] = new Vector4(0.59f, 0.24f, 0.12f, 1.00f);
+                    colors[(int)ImGuiCol.Tab] = new Vector4(0.16f, 0.16f, 0.16f, 1.00f);
+                    colors[(int)ImGuiCol.TabHovered] = new Vector4(0.84f, 0.34f, 0.17f, 1.00f);
+                    colors[(int)ImGuiCol.TabActive] = new Vector4(0.68f, 0.28f, 0.14f, 1.00f);
+                    colors[(int)ImGuiCol.TabUnfocused] = new Vector4(0.13f, 0.14f, 0.16f, 1.00f);
+                    colors[(int)ImGuiCol.TabUnfocusedActive] = new Vector4(0.17f, 0.18f, 0.20f, 1.00f);
+                    //colors[(int)ImGuiCol.DockingPreview] = new Vector4(0.19f, 0.20f, 0.22f, 1.00f);
+                    //colors[(int)ImGuiCol.DockingEmptyBg] = new Vector4(0.00f, 0.00f, 0.00f, 1.00f);
+                    colors[(int)ImGuiCol.PlotLines] = new Vector4(1.00f, 1.00f, 1.00f, 1.00f);
+                    colors[(int)ImGuiCol.PlotLinesHovered] = new Vector4(0.90f, 0.70f, 0.00f, 1.00f);
+                    colors[(int)ImGuiCol.PlotHistogram] = new Vector4(0.90f, 0.70f, 0.00f, 1.00f);
+                    colors[(int)ImGuiCol.PlotHistogramHovered] = new Vector4(1.00f, 0.60f, 0.00f, 1.00f);
+                    colors[(int)ImGuiCol.TextSelectedBg] = new Vector4(0.75f, 0.30f, 0.15f, 1.00f);
+                    colors[(int)ImGuiCol.DragDropTarget] = new Vector4(0.75f, 0.30f, 0.15f, 1.00f);
+                    colors[(int)ImGuiCol.NavHighlight] = new Vector4(0.75f, 0.30f, 0.15f, 1.00f);
+                    colors[(int)ImGuiCol.NavWindowingHighlight] = new Vector4(1.00f, 1.00f, 1.00f, 0.70f);
+                    colors[(int)ImGuiCol.NavWindowingDimBg] = new Vector4(0.80f, 0.80f, 0.80f, 0.20f);
+                    colors[(int)ImGuiCol.ModalWindowDimBg] = new Vector4(0.20f, 0.20f, 0.20f, 0.35f);
+                    break;
+                case "Light":
+                    BgColor = new Color(192, 192, 192);
+                    colors[(int)ImGuiCol.Text] = new Vector4(0.15f, 0.15f, 0.15f, 1.00f);
+                    colors[(int)ImGuiCol.TextDisabled] = new Vector4(0.60f, 0.60f, 0.60f, 1.00f);
+                    colors[(int)ImGuiCol.WindowBg] = new Vector4(0.87f, 0.87f, 0.87f, 1.00f);
+                    colors[(int)ImGuiCol.ChildBg] = new Vector4(0.87f, 0.87f, 0.87f, 1.00f);
+                    colors[(int)ImGuiCol.PopupBg] = new Vector4(0.87f, 0.87f, 0.87f, 1.00f);
+                    colors[(int)ImGuiCol.Border] = new Vector4(0.89f, 0.89f, 0.89f, 1.00f);
+                    colors[(int)ImGuiCol.BorderShadow] = new Vector4(0.00f, 0.00f, 0.00f, 0.00f);
+                    colors[(int)ImGuiCol.FrameBg] = new Vector4(0.93f, 0.93f, 0.93f, 1.00f);
+                    colors[(int)ImGuiCol.FrameBgHovered] = new Vector4(1.00f, 0.69f, 0.07f, 0.69f);
+                    colors[(int)ImGuiCol.FrameBgActive] = new Vector4(1.00f, 0.82f, 0.46f, 0.69f);
+                    colors[(int)ImGuiCol.TitleBg] = new Vector4(1.00f, 1.00f, 1.00f, 1.00f);
+                    colors[(int)ImGuiCol.TitleBgActive] = new Vector4(1.00f, 1.00f, 1.00f, 1.00f);
+                    colors[(int)ImGuiCol.TitleBgCollapsed] = new Vector4(1.00f, 1.00f, 1.00f, 1.00f);
+                    colors[(int)ImGuiCol.MenuBarBg] = new Vector4(1.00f, 1.00f, 1.00f, 1.00f);
+                    colors[(int)ImGuiCol.ScrollbarBg] = new Vector4(0.87f, 0.87f, 0.87f, 1.00f);
+                    colors[(int)ImGuiCol.ScrollbarGrab] = new Vector4(1.00f, 1.00f, 1.00f, 1.00f);
+                    colors[(int)ImGuiCol.ScrollbarGrabHovered] = new Vector4(1.00f, 0.69f, 0.07f, 0.69f);
+                    colors[(int)ImGuiCol.ScrollbarGrabActive] = new Vector4(1.00f, 0.82f, 0.46f, 0.69f);
+                    colors[(int)ImGuiCol.CheckMark] = new Vector4(0.01f, 0.01f, 0.01f, 0.63f);
+                    colors[(int)ImGuiCol.SliderGrab] = new Vector4(1.00f, 0.69f, 0.07f, 0.69f);
+                    colors[(int)ImGuiCol.SliderGrabActive] = new Vector4(1.00f, 0.82f, 0.46f, 0.69f);
+                    colors[(int)ImGuiCol.Button] = new Vector4(0.83f, 0.83f, 0.83f, 1.00f);
+                    colors[(int)ImGuiCol.ButtonHovered] = new Vector4(1.00f, 0.69f, 0.07f, 0.69f);
+                    colors[(int)ImGuiCol.ButtonActive] = new Vector4(1.00f, 0.82f, 0.46f, 0.69f);
+                    colors[(int)ImGuiCol.Header] = new Vector4(0.67f, 0.67f, 0.67f, 1.00f);
+                    colors[(int)ImGuiCol.HeaderHovered] = new Vector4(1.00f, 0.69f, 0.07f, 1.00f);
+                    colors[(int)ImGuiCol.HeaderActive] = new Vector4(1.00f, 0.82f, 0.46f, 0.69f);
+                    colors[(int)ImGuiCol.Separator] = new Vector4(1.00f, 1.00f, 1.00f, 1.00f);
+                    colors[(int)ImGuiCol.SeparatorHovered] = new Vector4(1.00f, 0.69f, 0.07f, 1.00f);
+                    colors[(int)ImGuiCol.SeparatorActive] = new Vector4(1.00f, 0.82f, 0.46f, 0.69f);
+                    colors[(int)ImGuiCol.ResizeGrip] = new Vector4(1.00f, 1.00f, 1.00f, 0.18f);
+                    colors[(int)ImGuiCol.ResizeGripHovered] = new Vector4(1.00f, 0.69f, 0.07f, 1.00f);
+                    colors[(int)ImGuiCol.ResizeGripActive] = new Vector4(1.00f, 0.82f, 0.46f, 0.69f);
+                    colors[(int)ImGuiCol.Tab] = new Vector4(0.16f, 0.16f, 0.16f, 0.00f);
+                    colors[(int)ImGuiCol.TabHovered] = new Vector4(1.00f, 0.69f, 0.07f, 1.00f);
+                    colors[(int)ImGuiCol.TabActive] = new Vector4(1.00f, 0.69f, 0.07f, 1.00f);
+                    colors[(int)ImGuiCol.TabUnfocused] = new Vector4(1.00f, 1.00f, 1.00f, 1.00f);
+                    colors[(int)ImGuiCol.TabUnfocusedActive] = new Vector4(0.87f, 0.87f, 0.87f, 1.00f);
+                    //colors[(int)ImGuiCol.DockingPreview] = new Vector4(1.00f, 0.82f, 0.46f, 0.69f);
+                    //colors[(int)ImGuiCol.DockingEmptyBg] = new Vector4(1.00f, 1.00f, 1.00f, 1.00f);
+                    colors[(int)ImGuiCol.PlotLines] = new Vector4(1.00f, 1.00f, 1.00f, 1.00f);
+                    colors[(int)ImGuiCol.PlotLinesHovered] = new Vector4(0.90f, 0.70f, 0.00f, 1.00f);
+                    colors[(int)ImGuiCol.PlotHistogram] = new Vector4(0.90f, 0.70f, 0.00f, 1.00f);
+                    colors[(int)ImGuiCol.PlotHistogramHovered] = new Vector4(1.00f, 0.60f, 0.00f, 1.00f);
+                    colors[(int)ImGuiCol.TextSelectedBg] = new Vector4(1.00f, 0.69f, 0.07f, 1.00f);
+                    colors[(int)ImGuiCol.DragDropTarget] = new Vector4(1.00f, 0.69f, 0.07f, 1.00f);
+                    colors[(int)ImGuiCol.NavHighlight] = new Vector4(1.00f, 0.69f, 0.07f, 1.00f);
+                    colors[(int)ImGuiCol.NavWindowingHighlight] = new Vector4(1.00f, 1.00f, 1.00f, 0.70f);
+                    colors[(int)ImGuiCol.NavWindowingDimBg] = new Vector4(0.87f, 0.87f, 0.87f, 1.00f);
+                    colors[(int)ImGuiCol.ModalWindowDimBg] = new Vector4(0.20f, 0.20f, 0.20f, 0.35f);
+                    break;
+            }
+        }
+
+        void SetConfirm(Action action, string text)
+        {
+            showConfirmWindow = true;
+            confirmAction = action;
+            confirmText = text;
+        }
         public void Update()
         {
             // Shortcut keys
@@ -91,33 +221,6 @@ namespace ImJtool
             if (InputManager.Instance.IsKeyHold(Keys.LeftControl) && InputManager.Instance.IsKeyPress(Keys.Y))
                 Editor.Instance.Redo();
 
-            void SaveMap()
-            {
-                if (MapManager.Instance.CurrentMapFile != null)
-                    MapManager.Instance.SaveJMap(MapManager.Instance.CurrentMapFile);
-                else SaveMapAs();
-            }
-
-            void SaveMapAs()
-            {
-                var d = new SaveFileDialog();
-                d.Filter = "jtool map file|*.jmap";
-                if (d.ShowDialog() == DialogResult.OK)
-                {
-                    MapManager.Instance.SaveJMap(d.FileName);
-                }
-            }
-
-            void OpenMap()
-            {
-                var d = new OpenFileDialog();
-                d.Filter = "jtool map file|*.jmap";
-                if (d.ShowDialog() == DialogResult.OK)
-                {
-                    MapManager.Instance.LoadJMap(d.FileName);
-                }
-            }
-
             // Define main menu
             if (ImGui.BeginMainMenuBar())
             {
@@ -126,26 +229,32 @@ namespace ImJtool
                     if (ImGui.MenuItem("New Map", "F2"))
                     {
                         showMapWindow = true;
+
+                        if (MapManager.Instance.Modified)
+                        {
+                            SetConfirm(MapManager.Instance.NewMap, "Map has been changed. Save Changes?");
+                        }
+                        else MapManager.Instance.NewMap();
                     }
                     ImGui.Separator();
-                    
+
                     if (ImGui.MenuItem("Open Map", "CTRL+O"))
                     {
                         if (MapManager.Instance.Modified)
                         {
-                            showConfirmOpenMap = true;
+                            SetConfirm(MapManager.Instance.OpenMap, "Map has been changed. Save Changes?");
                         }
-                        else OpenMap();
+                        else MapManager.Instance.OpenMap();
                     }
                     ImGui.Separator();
-                    
+
                     if (ImGui.MenuItem("Save Map", "CTRL+S"))
                     {
-                        SaveMap();
+                        MapManager.Instance.SaveMap();
                     }
                     if (ImGui.MenuItem("Save As..."))
                     {
-                        SaveMapAs();
+                        MapManager.Instance.SaveMapAs();
                     }
                     ImGui.Separator();
                     if (ImGui.MenuItem("Exit", "ALT+F4"))
@@ -179,25 +288,36 @@ namespace ImJtool
                 {
                     if (ImGui.BeginMenu("Grid"))
                     {
-                        if (ImGui.MenuItem("Show Grid", null, showGrid))
+                        if (ImGui.MenuItem("Show Grid", null, Editor.Instance.ShowGrid))
                         {
-                            showGrid = !showGrid;
-                            if (showGrid)
-                            {
-
-                            }
+                            Editor.Instance.ShowGrid = !Editor.Instance.ShowGrid;
                         }
                         ImGui.Separator();
-                        if (ImGui.MenuItem("Set Size"))
+                        if (ImGui.BeginMenu("Grid Size"))
                         {
-                            showGridWindow = !showGridWindow;
+                            if (ImGui.MenuItem("32x32", null, Editor.Instance.GridSize == 32))
+                            {
+                                Editor.Instance.GridSize = 32;
+                                Editor.Instance.RedrawGrid();
+                            }
+                            if (ImGui.MenuItem("16x16", null, Editor.Instance.GridSize == 16))
+                            {
+                                Editor.Instance.GridSize = 16;
+                                Editor.Instance.RedrawGrid();
+                            }
+                            if (ImGui.MenuItem("8x8", null, Editor.Instance.GridSize == 8))
+                            {
+                                Editor.Instance.GridSize = 8;
+                                Editor.Instance.RedrawGrid();
+                            }
+                            ImGui.EndMenu();
                         }
                         ImGui.EndMenu();
                     }
                     ImGui.Separator();
-                    if (ImGui.MenuItem("Show Mouse Coord", null, showMouseCoord))
+                    if (ImGui.MenuItem("Show Mouse Coord", null, ShowMouseCoord))
                     {
-                        showMouseCoord = !showMouseCoord;
+                        ShowMouseCoord = !ShowMouseCoord;
                     }
                     ImGui.Separator();
                     if (ImGui.BeginMenu("Skin"))
@@ -210,6 +330,7 @@ namespace ImJtool
                         {
 
                         }
+                        ImGui.Separator();
                         if (ImGui.MenuItem("Random"))
                         {
 
@@ -223,17 +344,13 @@ namespace ImJtool
                     }
                     if (ImGui.BeginMenu("GUI Theme"))
                     {
-                        if (ImGui.MenuItem("Default"))
+                        if (ImGui.MenuItem("Dark", null, currentTheme == "Dark"))
                         {
-
+                            SetTheme("Dark");
                         }
-                        if (ImGui.MenuItem("Dark"))
+                        if (ImGui.MenuItem("Light", null, currentTheme == "Light"))
                         {
-
-                        }
-                        if (ImGui.MenuItem("Light"))
-                        {
-
+                            SetTheme("Light");
                         }
                         ImGui.EndMenu();
                     }
@@ -372,15 +489,30 @@ namespace ImJtool
                     Editor.Instance.Update();
 
                     // Draw map window
-                    var startPos = ImGui.GetWindowPos() + new Vector2(0, TitleBarHeight);
+                    var windowPos = ImGui.GetWindowPos();
+                    var startPos = windowPos + new Vector2(0, TitleBarHeight);
+
+                    ImDrawListPtr drawList;
 
                     if (ImGui.IsWindowFocused())
                     {
-                        ImGui.GetForegroundDrawList().AddImage(MapTexture, startPos, startPos + new Vector2(800, 608) * MapWindowScale);
+                        drawList = ImGui.GetForegroundDrawList();
                     }
                     else
                     {
-                        ImGui.GetBackgroundDrawList().AddImage(MapTexture, startPos, startPos + new Vector2(800, 608) * MapWindowScale);
+                        drawList = ImGui.GetBackgroundDrawList();
+                    }
+                    drawList.AddImage(MapTexture, startPos, startPos + new Vector2(800, 608) * MapWindowScale);
+
+                    if (ShowMouseCoord)
+                    {
+                        var pos = (ImGui.GetMousePos() - startPos) / MapWindowScale;
+
+                        if (pos.X >= 0 && pos.X <= 800 && pos.Y >= 0 && pos.Y <= 608)
+                        {
+                            
+                            drawList.AddText(pos * MapWindowScale + windowPos, MakeUIntColor(255, 255, 255, 255), $"({MathF.Floor(pos.X)}, {MathF.Floor(pos.Y)})");
+                        }
                     }
                 }
                 ImGui.End();
@@ -604,30 +736,71 @@ namespace ImJtool
                 ImGui.EndPopup();
             }
 
-            if (showConfirmOpenMap)
+            // Confirm window
+            if (showConfirmWindow)
             {
-                ImGui.OpenPopup("Confirm Open Map");
+                ImGui.OpenPopup("Confirm");
             }
-            if (ImGui.BeginPopupModal("Confirm Open Map", ref showConfirmOpenMap))
+            if (ImGui.BeginPopupModal("Confirm", ref showConfirmWindow))
             {
-                ImGui.Text("Map has been changed. Save Changes?");
+                ImGui.Text(confirmText);
                 if (ImGui.Button("Yes"))
                 {
-                    SaveMap();
-                    showConfirmOpenMap = false;
+                    confirmAction();
+                    showConfirmWindow = false;
                 }
                 ImGui.SameLine();
                 if (ImGui.Button("No"))
                 {
-                    OpenMap();
-                    showConfirmOpenMap = false;
+                    confirmAction();
+                    showConfirmWindow = false;
                 }
                 ImGui.SameLine();
-                if (ImGui.Button("Cancel")) 
-                { 
-                    showConfirmOpenMap = false;
+                if (ImGui.Button("Cancel"))
+                {
+                    showConfirmWindow = false;
                 }
-                
+
+                ImGui.EndPopup();
+            }
+
+            // snap window
+            if (showSnapWindow)
+            {
+                ImGui.OpenPopup("Set Snap");
+            }
+            ImGui.SetNextWindowSize(new Vector2(300, 200), ImGuiCond.Once);
+            if (ImGui.BeginPopupModal("Set Snap", ref showSnapWindow))
+            {
+                if (ImGui.Button("32"))
+                {
+                    snap = 32;
+                }
+                ImGui.SameLine();
+                if (ImGui.Button("16"))
+                {
+                    snap = 16;
+                }
+                ImGui.SameLine();
+                if (ImGui.Button("8"))
+                {
+                    snap = 8;
+                }
+                ImGui.SameLine();
+                if (ImGui.Button("1"))
+                {
+                    snap = 1;
+                }
+
+                ImGui.InputInt("Snap Size (1~128)", ref snap);
+                snap = Math.Clamp(snap, 1, 128);
+
+                if (ImGui.Button("OK"))
+                {
+                    Editor.Instance.Snap = snap;
+                    showSnapWindow = false;
+                    ImGui.CloseCurrentPopup();
+                }
                 ImGui.EndPopup();
             }
         }

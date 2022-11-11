@@ -5,6 +5,7 @@ using System.Linq;
 using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 using static System.Resources.ResXFileRef;
 
 namespace ImJtool
@@ -175,12 +176,7 @@ namespace ImJtool
                             PlayerManager.Instance.Grav = int.Parse(value);
                             break;
                         case "objects":
-                            Editor.Instance.ClearUndo();
-                            foreach (var o in MapObjectManager.Instance.Objects)
-                            {
-                                if (o.IsInPalette)
-                                    o.Destroy();
-                            }
+                            ClearMap();
                             var i = 0;
                             var yy = 0f;
                             while (i < value.Length)
@@ -285,6 +281,53 @@ namespace ImJtool
             Modified = false;
             CurrentMapFile = filename;
             Gui.Log("Map Manager", $"JMap saved. File: {filename}, {mapObjectsList.Count} objects");
+        }
+
+        public void ClearMap()
+        {
+            Editor.Instance.ClearUndo();
+            foreach (var o in MapObjectManager.Instance.Objects)
+            {
+                if (o.IsInPalette)
+                    o.Destroy();
+            }
+        }
+        public void SaveMap()
+        {
+            if (CurrentMapFile != null)
+                SaveJMap(CurrentMapFile);
+            else SaveMapAs();
+        }
+
+        public void SaveMapAs()
+        {
+            var d = new SaveFileDialog();
+            d.Filter = "jtool map file|*.jmap";
+            if (d.ShowDialog() == DialogResult.OK)
+            {
+                SaveJMap(d.FileName);
+            }
+        }
+
+        public void NewMap()
+        {
+            ClearMap();
+
+            // Create default objects
+            MapObjectManager.Instance.CreateObject(352, 416, typeof(Block));
+            MapObjectManager.Instance.CreateObject(352 + 32, 416, typeof(Block));
+            MapObjectManager.Instance.CreateObject(352 + 64, 416, typeof(Block));
+            MapObjectManager.Instance.CreateObject(384, 384, typeof(PlayerStart));
+        }
+
+        public void OpenMap()
+        {
+            var d = new OpenFileDialog();
+            d.Filter = "jtool map file|*.jmap";
+            if (d.ShowDialog() == DialogResult.OK)
+            {
+                LoadJMap(d.FileName);
+            }
         }
     }
 }
