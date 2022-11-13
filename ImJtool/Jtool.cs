@@ -1,13 +1,10 @@
 ﻿using ImGuiNET;
-using Microsoft.VisualBasic.Devices;
+using ImJtool.Managers;
 using Microsoft.Win32;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
-using System.Diagnostics;
 using System.IO;
-using System.Linq;
-using System.Reflection;
 using System.Security.Principal;
 using System.Windows.Forms;
 
@@ -73,6 +70,7 @@ namespace ImJtool
             InputManager.ClearPressAndRelease();
 
             MapManager.Initialize();
+            ConfigManager.Initialize();
 
             base.Initialize();
         }
@@ -148,9 +146,9 @@ namespace ImJtool
             {
                 Editor.PreviewSprite.Draw(0, Editor.PreviewPosition.X, Editor.PreviewPosition.Y, 1, 1, 0, Color.White * 0.5f);
             }
-            
+
             SpriteBatch.End();
-            
+
             GraphicsDevice.SetRenderTarget(null);
 
             base.Update(gameTime);

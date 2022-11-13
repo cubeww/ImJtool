@@ -58,7 +58,6 @@ D:\Projects\CSharp\ImJtool\ImJtool\bin\Debug\net6.0-windows\KeraLua.dll
 D:\Projects\CSharp\ImJtool\ImJtool\bin\Debug\net6.0-windows\MonoGame.Framework.dll
 D:\Projects\CSharp\ImJtool\ImJtool\bin\Debug\net6.0-windows\NLua.dll
 D:\Projects\CSharp\ImJtool\ImJtool\bin\Debug\net6.0-windows\runtimes\linux-x64\native\libcimgui.so
-D:\Projects\CSharp\ImJtool\ImJtool\bin\Debug\net6.0-windows\runtimes\osx-universal\native\libcimgui.dylib
 D:\Projects\CSharp\ImJtool\ImJtool\bin\Debug\net6.0-windows\runtimes\win-x64\native\cimgui.dll
 D:\Projects\CSharp\ImJtool\ImJtool\bin\Debug\net6.0-windows\runtimes\win-x86\native\cimgui.dll
 D:\Projects\CSharp\ImJtool\ImJtool\bin\Debug\net6.0-windows\runtimes\android-arm\native\liblua54.so
@@ -96,3 +95,4 @@ D:\Projects\CSharp\ImJtool\ImJtool\obj\Debug\net6.0-windows\refint\ImJtool.dll
 D:\Projects\CSharp\ImJtool\ImJtool\obj\Debug\net6.0-windows\ImJtool.pdb
 D:\Projects\CSharp\ImJtool\ImJtool\obj\Debug\net6.0-windows\ImJtool.genruntimeconfig.cache
 D:\Projects\CSharp\ImJtool\ImJtool\obj\Debug\net6.0-windows\ref\ImJtool.dll
+D:\Projects\CSharp\ImJtool\ImJtool\bin\Debug\net6.0-windows\runtimes\osx\native\libcimgui.dylib

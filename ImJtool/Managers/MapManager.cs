@@ -2,11 +2,8 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Numerics;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
-using static System.Resources.ResXFileRef;
+using ImJtool.Managers;
 
 namespace ImJtool
 {
@@ -200,7 +197,6 @@ namespace ImJtool
             PlayerManager.Load();
             Modified = false;
             CurrentMapFile = filename;
-            Gui.Log("Map Manager", $"JMap loaded. File: {filename}, {objnum} objects");
         }
         /// <summary>
         /// Save jtool map file ("|" split, base32 store numbers)
@@ -279,7 +275,6 @@ namespace ImJtool
             File.WriteAllText(filename, str);
             Modified = false;
             CurrentMapFile = filename;
-            Gui.Log("Map Manager", $"JMap saved. File: {filename}, {mapObjectsList.Count} objects");
         }
 
         public static void ClearMap()

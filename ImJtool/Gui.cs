@@ -1,18 +1,13 @@
 ﻿using ImGuiNET;
+using ImJtool.Managers;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using static System.Net.WebRequestMethods;
-using Vector4 = System.Numerics.Vector4;
-using Vector2 = System.Numerics.Vector2;
-using Microsoft.Xna.Framework.Input;
-using System.Reflection;
-using System.Xml.Linq;
-using Microsoft.Win32;
 using Keys = Microsoft.Xna.Framework.Input.Keys;
-using System.Windows.Forms;
+using Vector2 = System.Numerics.Vector2;
+using Vector4 = System.Numerics.Vector4;
 
 namespace ImJtool
 {
@@ -27,7 +22,6 @@ namespace ImJtool
         static bool showShiftWindow = false;
         static bool showSkinWindow = false;
         static bool showPaletteWindow = true;
-        static bool showLogWindow = false;
         static bool showAnalysisWindow = false;
         static bool showAboutWindow = false;
 
@@ -427,10 +421,6 @@ namespace ImJtool
                     {
                         showPaletteWindow = !showPaletteWindow;
                     }
-                    if (ImGui.MenuItem("Log Window", null, showLogWindow))
-                    {
-                        showLogWindow = !showLogWindow;
-                    }
                     if (ImGui.MenuItem("Shift", null, showShiftWindow))
                     {
                         showShiftWindow = !showShiftWindow;
@@ -507,7 +497,7 @@ namespace ImJtool
 
                         if (pos.X >= 0 && pos.X <= 800 && pos.Y >= 0 && pos.Y <= 608)
                         {
-                            
+
                             drawList.AddText(pos * MapWindowScale + windowPos, MakeUIntColor(255, 255, 255, 255), $"({MathF.Floor(pos.X)}, {MathF.Floor(pos.Y)})");
                         }
                     }
@@ -520,7 +510,7 @@ namespace ImJtool
                 // Define palette
                 ImGui.SetNextWindowPos(new Vector2(2, 100), ImGuiCond.Once);
                 ImGui.SetNextWindowSize(new Vector2(500, 300), ImGuiCond.Once);
-                if (ImGui.Begin("Palette", ref showPaletteWindow))
+                if (ImGui.Begin("Palette", ref showPaletteWindow, ImGuiWindowFlags.NoDocking))
                 {
                     void AddObject(Type type)
                     {
@@ -594,47 +584,6 @@ namespace ImJtool
                 ImGui.End();
             }
 
-            if (showLogWindow)
-            {
-                ImGui.SetNextWindowPos(new Vector2(2, 402), ImGuiCond.Once);
-                ImGui.SetNextWindowSize(new Vector2(500, 600), ImGuiCond.Once);
-
-                if (ImGui.Begin("Log Window", ref showLogWindow))
-                {
-                    var needClear = false;
-                    if (ImGui.Button("Clear"))
-                    {
-                        needClear = true;
-                    }
-
-                    ImGui.Separator();
-
-                    if (ImGui.BeginChild("Output"))
-                    {
-                        var maxSize = 100;
-                        for (int i = Math.Max(logText.Count - 1 - maxSize, 0); i < logText.Count; i++)
-                        {
-                            var (sender, text) = logText[i];
-                            ImGui.PushStyleColor(ImGuiCol.Text, new System.Numerics.Vector4(0, 255, 128, 255));
-                            ImGui.TextWrapped($"[{sender}] {text}");
-                            ImGui.PopStyleColor();
-                            ImGui.Separator();
-                        }
-                        if (scrollToBottom)
-                        {
-                            ImGui.SetScrollHereY(1.0f);
-                            scrollToBottom = false;
-                        }
-                        ImGui.EndChild();
-                    }
-
-                    if (needClear)
-                        logText.Clear();
-
-                    ImGui.End();
-                }
-            }
-
             if (showSkinWindow)
             {
                 ImGui.OpenPopup("Skin");
@@ -674,7 +623,7 @@ namespace ImJtool
                         if (ImGui.Selectable(name, skinSelect == idx))
                         {
                             skinSelect = idx;
-                            SkinManager.PreviewSkin = new(name);
+                            SkinManager.ApplyToPreview(name);
                         }
                     }
                     ImGui.EndListBox();
@@ -720,7 +669,7 @@ namespace ImJtool
                 ImGui.Columns();
                 if (ImGui.Button("Apply"))
                 {
-                    SkinManager.ApplySkin(SkinManager.PreviewSkin.Name);
+                    SkinManager.ApplyToCurrent(SkinManager.PreviewSkin.Name);
                     GeneratePaletteIcons();
 
                     showSkinWindow = false;
@@ -801,18 +750,6 @@ namespace ImJtool
                 ImGui.EndPopup();
             }
         }
-        /// <summary>
-        /// Displays a log in the log window. Maybe for debug, maybe just for cool...
-        /// </summary>
-        public static void Log(string sender, string text)
-        {
-            if (sender == "MapObjectManager" && text.Contains("Blood"))
-                return;
-
-            logText.Add((sender, text));
-            scrollToBottom = true;
-        }
-
         public static bool ContainsWord(string word, string otherword)
         {
             int currentIndex = 0;

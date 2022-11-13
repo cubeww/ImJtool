@@ -1,4 +1,4 @@
-﻿namespace ImJtool
+﻿namespace ImJtool.Managers
 {
     public enum ShowMask
     {
@@ -42,7 +42,7 @@
         public static SaveType SaveType { get; set; } = SaveType.OnlyShoot;
 
         public static DeathBorder deathBorder = DeathBorder.Killer;
-        public static DeathBorder DeathBorder 
+        public static DeathBorder DeathBorder
         {
             get => deathBorder;
             set
@@ -68,7 +68,7 @@
             if (InputManager.IsKeyPress(Microsoft.Xna.Framework.Input.Keys.R))
             {
                 // Press R
-                PlayerManager.Load();
+                Load();
             }
         }
 
@@ -80,7 +80,6 @@
                 CurrentSave.Y = Player.Y;
                 CurrentSave.Face = Face;
                 CurrentSave.Grav = Grav;
-                Gui.Log("PlayerManager", $"Player saved: {{ X: {CurrentSave.X}, Y: {CurrentSave.Y} }}");
             }
         }
         public static void Load()
@@ -91,7 +90,6 @@
             MapObjectManager.CreateObject(CurrentSave.X, CurrentSave.Y, typeof(Player));
             Grav = CurrentSave.Grav;
             Face = CurrentSave.Face;
-            Gui.Log("PlayerManager", $"Player loaded: {{ X: {CurrentSave.X}, Y: {CurrentSave.Y} }}");
         }
     }
 

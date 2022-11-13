@@ -2,7 +2,7 @@
   "version": 3,
   "targets": {
     "net6.0-windows7.0": {
-      "ImGui.NET/1.87.3": {
+      "ImGui.NET/1.88.0": {
         "type": "package",
         "dependencies": {
           "System.Buffers": "4.4.0",
@@ -24,9 +24,9 @@
             "assetType": "native",
             "rid": "linux-x64"
           },
-          "runtimes/osx-universal/native/libcimgui.dylib": {
+          "runtimes/osx/native/libcimgui.dylib": {
             "assetType": "native",
-            "rid": "osx-universal"
+            "rid": "osx"
           },
           "runtimes/win-x64/native/cimgui.dll": {
             "assetType": "native",
@@ -229,22 +229,22 @@
     }
   },
   "libraries": {
-    "ImGui.NET/1.87.3": {
-      "sha512": "pYKUrXtvinMZiWToAzGhAGXscPr1B/NVVADbfbBlpl9waaVtB/7q9Zx07HyjivE44f8u1W1L++iwwfrCS3Sw3w==",
+    "ImGui.NET/1.88.0": {
+      "sha512": "5pYlZ4juw1+HaWD8sM8aPqUFcS3b1SHDCXBxfZ02ID96SKHp1icAKKiS0VJA9MbSATQGQd9lAAkY5p8JZGzomA==",
       "type": "package",
-      "path": "imgui.net/1.87.3",
+      "path": "imgui.net/1.88.0",
       "files": [
         ".nupkg.metadata",
         ".signature.p7s",
         "build/net40/ImGui.NET.targets",
-        "imgui.net.1.87.3.nupkg.sha512",
+        "imgui.net.1.88.0.nupkg.sha512",
         "imgui.net.nuspec",
         "lib/net6.0/ImGui.NET.dll",
         "lib/net6.0/ImGui.NET.xml",
         "lib/netstandard2.0/ImGui.NET.dll",
         "lib/netstandard2.0/ImGui.NET.xml",
         "runtimes/linux-x64/native/libcimgui.so",
-        "runtimes/osx-universal/native/libcimgui.dylib",
+        "runtimes/osx/native/libcimgui.dylib",
         "runtimes/win-x64/native/cimgui.dll",
         "runtimes/win-x86/native/cimgui.dll"
       ]
@@ -483,7 +483,7 @@
   },
   "projectFileDependencyGroups": {
     "net6.0-windows7.0": [
-      "ImGui.NET >= 1.87.3",
+      "ImGui.NET >= 1.88.0",
       "MonoGame.Content.Builder.Task >= 3.8.1.303",
       "MonoGame.Framework.DesktopGL >= 3.8.1.303",
       "NLua >= 1.6.0",
@@ -539,7 +539,7 @@
         "dependencies": {
           "ImGui.NET": {
             "target": "Package",
-            "version": "[1.87.3, )"
+            "version": "[1.88.0, )"
           },
           "MonoGame.Content.Builder.Task": {
             "target": "Package",

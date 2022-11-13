@@ -48,7 +48,7 @@
           "dependencies": {
             "ImGui.NET": {
               "target": "Package",
-              "version": "[1.87.3, )"
+              "version": "[1.88.0, )"
             },
             "MonoGame.Content.Builder.Task": {
               "target": "Package",

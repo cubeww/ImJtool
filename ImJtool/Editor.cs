@@ -1,4 +1,5 @@
 ﻿using ImGuiNET;
+using ImJtool.Managers;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -51,7 +52,7 @@ namespace ImJtool
             {
                 sb.Draw(tex, new Rectangle(xx, 0, 1, 608), col);
             }
-            for (int yy = 0; yy < 608; yy+=GridSize)
+            for (int yy = 0; yy < 608; yy += GridSize)
             {
                 sb.Draw(tex, new Rectangle(0, yy, 800, 1), col);
             }
@@ -324,7 +325,6 @@ namespace ImJtool
                             break;
                     }
                 }
-                Gui.Log("Editor", $"Undo event \"{lastEvent.type}\", contains {lastEvent.events.Count} sub events");
             }
         }
         /// <summary>
@@ -359,14 +359,12 @@ namespace ImJtool
                             break;
                     }
                 }
-                Gui.Log("Editor", $"Redo event \"{lastEvent.type}\", contains {lastEvent.events.Count} sub events");
             }
         }
 
         public static void SetSelectType(Type type)
         {
             SelectType = type;
-            Gui.Log("Editor", $"Selected type \"{type}\"");
         }
 
         public static void ClearUndo()

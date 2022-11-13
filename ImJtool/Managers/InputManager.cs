@@ -1,8 +1,6 @@
 ﻿using Microsoft.Xna.Framework.Input;
-using System;
-using System.Diagnostics;
 
-namespace ImJtool
+namespace ImJtool.Managers
 {
     /// <summary>
     /// Check keyboard input.

@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 
-namespace ImJtool
+namespace ImJtool.Managers
 {
     /// <summary>
     /// Manage objects in the map and provide some collision detection methods
@@ -55,7 +54,7 @@ namespace ImJtool
         /// </summary>
         public static void DoDraw()
         {
-            Objects = Objects.OrderBy(o => o.Depth).Reverse().ToList();
+            Objects = Objects.OrderBy(o => -o.Depth).ThenBy(o => o.CreateTime).ToList();
 
             foreach (var obj in Objects.ToArray())
             {
@@ -93,7 +92,6 @@ namespace ImJtool
             Objects.Add(obj);
             AddToPool(obj);
             obj.Create();
-            Gui.Log("MapObjectManager", $"Created object \"{type}\" at ({x}, {y})");
             return obj;
         }
         /// <summary>

@@ -1,10 +1,9 @@
 ﻿using Microsoft.Xna.Framework.Graphics;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Text.Json.Nodes;
 
-namespace ImJtool
+namespace ImJtool.Managers
 {
     /// <summary>
     /// Store all resources (texture, sprite, sound, etc.)
@@ -18,7 +17,6 @@ namespace ImJtool
         {
             var texture = Texture2D.FromFile(Jtool.Instance.GraphicsDevice, filename);
             textures[name] = texture;
-            Gui.Log("ResourceManager", $"Created texture: {{ Name: {name}, File: {filename} }}");
             return texture;
         }
 
@@ -26,25 +24,23 @@ namespace ImJtool
         {
             var sprite = new Sprite(xo, yo);
             sprites[name] = sprite;
-            Gui.Log("ResourceManager", $"Created sprite: {{ Name: {name}, Origin: ({xo}, {yo}) }}");
             return sprite;
         }
 
         public static void LoadTextures()
         {
             // Load all images according to define.json
-            var defineJson = File.ReadAllText("textures/define.json");
-            var define = (JsonArray)JsonNode.Parse(defineJson);
-            foreach (JsonNode i in define)
+            var defineJson = File.ReadAllText("configs/sprites.json");
+            var define = JsonNode.Parse(defineJson).AsObject();
+            foreach ((string name, JsonNode val) in define)
             {
-                string filename = (string)i["file"];
-                int x = i["x"] == null ? 1 : (int)i["x"];
-                int y = i["y"] == null ? 1 : (int)i["y"];
-                int xo = i["xo"] == null ? 0 : (int)i["xo"];
-                int yo = i["yo"] == null ? 0 : (int)i["yo"];
+                string filename = (string)val["file"];
+                int x = (int)(val["x"] ?? 1);
+                int y = (int)(val["y"] ?? 1);
+                int xo = (int)(val["xo"] ?? 1);
+                int yo = (int)(val["yo"] ?? 1);
 
-                string name = Path.GetFileNameWithoutExtension(filename);
-                var tex = CreateTexture(name, $"textures/{filename}");
+                var tex = CreateTexture(name, filename);
                 CreateSprite(name, xo, yo).AddSheet(tex, x, y);
             }
         }

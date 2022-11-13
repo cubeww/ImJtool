@@ -1,13 +1,11 @@
-﻿using Microsoft.Xna.Framework.Graphics;
+﻿using IniParser;
+using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using IniParser;
 
-namespace ImJtool
+namespace ImJtool.Managers
 {
     public static class SkinManager
     {
@@ -33,7 +31,6 @@ namespace ImJtool
 
             SkinNames = data["skins"]["names"].Split(',').ToList();
             SkinNames.Insert(0, "<default>");
-            Gui.Log("SkinManager", $"Loaded skins.ini, got {SkinNames.Count} names");
 
             CurrentSkin = new SkinPackage();
         }
@@ -41,7 +38,7 @@ namespace ImJtool
         /// Apply the skin package named "name".
         /// It iterates over all map objects that support skins and switches their sprites.
         /// </summary>
-        public static void ApplySkin(string name)
+        public static void ApplyToCurrent(string name)
         {
             var package = new SkinPackage(name);
             CurrentSkin = package;
@@ -53,6 +50,14 @@ namespace ImJtool
                     obj.ApplySkin();
                 }
             }
+        }
+        /// <summary>
+        /// Apply skin to preview skin.
+        /// </summary>
+        public static void ApplyToPreview(string name)
+        {
+            var package = new SkinPackage(name);
+            PreviewSkin = package;
         }
         /// <summary>
         /// Will get the skin object of the specified type of object in the current skin package.
@@ -69,7 +74,7 @@ namespace ImJtool
         {
             if (MapObject.SkinableObjects.Contains(type) && CurrentSkin.SkinObjects.ContainsKey(type))
                 return CurrentSkin.SkinObjects[type].Sprite;
-            else return ResourceManager.GetSprite(MapObject.SpriteNames[type]);
+            else return ResourceManager.GetSprite(MapObject.ObjectSpriteName[type]);
         }
         /// <summary>
         /// Will get the skin object of the specified type of object in the preview skin package.
@@ -86,7 +91,7 @@ namespace ImJtool
         {
             if (PreviewSkin.SkinObjects.ContainsKey(type))
                 return PreviewSkin.SkinObjects[type].Sprite;
-            else return ResourceManager.GetSprite(MapObject.SpriteNames[type]);
+            else return ResourceManager.GetSprite(MapObject.ObjectSpriteName[type]);
         }
     }
     public enum BgType

@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework;
+﻿using ImJtool.Managers;
+using Microsoft.Xna.Framework;
 using System;
 using System.Collections.Generic;
 
@@ -28,6 +29,7 @@ namespace ImJtool
         public float YPrevious { get; set; } = 0;
         public float XScale { get; set; } = 1;
         public float YScale { get; set; } = 1;
+        public DateTime CreateTime { get; set; } = DateTime.Now;
         /// <summary>
         /// Changes in HSpeed also affect speed and direction.
         /// </summary>
@@ -121,8 +123,11 @@ namespace ImJtool
         public int BBoxRight { get; private set; }
         public int BBoxTop { get; private set; }
         public int BBoxBottom { get; private set; }
-
-        public static Dictionary<Type, string> SpriteNames = new()
+        /// <summary>
+        /// Map the object's type to the object's sprite name.
+        /// This sprite name can be used in ResourceManager.GetSprite() to get the corresponding sprite.
+        /// </summary>
+        public static Dictionary<Type, string> ObjectSpriteName { get; set; } = new()
         {
             [typeof(SpikeUp)] = "spike_up",
             [typeof(SpikeDown)] = "spike_down",
@@ -154,7 +159,7 @@ namespace ImJtool
             [typeof(Blood)] = "blood",
             [typeof(PlayerBullet)] = "bullet",
         };
-        public static List<Type> PaletteObjects = new()
+        public static List<Type> PaletteObjects { get; set; } = new()
         {
             typeof(SpikeUp),
             typeof(SpikeDown),
@@ -182,7 +187,7 @@ namespace ImJtool
             typeof(GravityArrowDown),
             typeof(BulletBlocker),
         };
-        public static List<Type> SkinableObjects = new()
+        public static List<Type> SkinableObjects { get; set; } = new()
         {
             typeof(SpikeUp),
             typeof(SpikeDown),
@@ -229,9 +234,9 @@ namespace ImJtool
             {
                 ApplySkin();
             }
-            else if (SpriteNames.ContainsKey(GetType()))
+            else if (ObjectSpriteName.ContainsKey(GetType()))
             {
-                Sprite = ResourceManager.GetSprite(SpriteNames[GetType()]);
+                Sprite = ResourceManager.GetSprite(ObjectSpriteName[GetType()]);
             }
 
             MaskSprite = Sprite;
@@ -271,7 +276,6 @@ namespace ImJtool
         /// </summary>
         public void Destroy()
         {
-            Gui.Log("MapObjectManager", $"Destroyed object \"{GetType()}\" at ({X}, {Y})");
             NeedDestroy = true;
         }
         /// <summary>
@@ -282,7 +286,7 @@ namespace ImJtool
             if (Sprite != null)
                 Sprite.Draw(ImageIndex, X, Y, XScale, YScale, Rotation * MathF.PI / 180f, Color);
         }
-        
+
         /// <summary>
         /// Returns whether the object placed at (x,y) meets an object of the specified type.
         /// </summary>
@@ -528,7 +532,7 @@ namespace ImJtool
             }
             else
             {
-                Sprite = ResourceManager.GetSprite(SpriteNames[GetType()]);
+                Sprite = ResourceManager.GetSprite(ObjectSpriteName[GetType()]);
             }
         }
     }

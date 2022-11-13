@@ -2,8 +2,6 @@
 using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
-using ImGuiNET;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace ImJtool
 {
@@ -13,9 +11,9 @@ namespace ImJtool
     /// </summary>
     public class Sprite
     {
-        public int XOrigin, YOrigin;
-
-        List<SpriteItem> items = new();
+        public int XOrigin { get; set; }
+        public int YOrigin { get; set; }
+        public List<SpriteItem> Items { get; set; } = new();
 
         public Sprite(int xo = 0, int yo = 0)
         {
@@ -35,7 +33,7 @@ namespace ImJtool
                 {
                     var item = new SpriteItem(texture, x * w, y * h, w, h);
                     item.GetBoundingBox();
-                    items.Add(item);
+                    Items.Add(item);
                 }
             }
         }
@@ -71,7 +69,7 @@ namespace ImJtool
 
         public SpriteItem GetItem(float index)
         {
-            return items[(int)Math.Round(index) % items.Count];
+            return Items[(int)Math.Round(index) % Items.Count];
         }
     }
     /// <summary>
@@ -97,11 +95,11 @@ namespace ImJtool
 
         public SpriteItem(Texture2D texture, int x, int y, int w, int h)
         {
-            this.Texture = texture;
-            this.X = x;
-            this.Y = y;
-            this.W = w;
-            this.H = h;
+            Texture = texture;
+            X = x;
+            Y = y;
+            W = w;
+            H = h;
 
             ImGuiTexture = Jtool.Instance.ImGuiRender.BindTexture(texture);
         }
